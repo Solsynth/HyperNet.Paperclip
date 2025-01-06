@@ -2,10 +2,11 @@ package api
 
 import (
 	"fmt"
+	"strings"
+
 	"git.solsynth.dev/hypernet/nexus/pkg/nex/sec"
 	"git.solsynth.dev/hypernet/paperclip/pkg/internal/gap"
 	"git.solsynth.dev/hypernet/passport/pkg/authkit"
-	"strings"
 
 	"git.solsynth.dev/hypernet/paperclip/pkg/internal/database"
 	"git.solsynth.dev/hypernet/paperclip/pkg/internal/models"
@@ -23,13 +24,43 @@ func lookupStickerBatch(c *fiber.Ctx) error {
 	}
 }
 
-func lookupSticker(c *fiber.Ctx) error {
+func getStickerByAlias(c *fiber.Ctx) error {
 	alias := c.Params("alias")
 	if sticker, err := services.GetStickerWithAlias(alias); err != nil {
 		return fiber.NewError(fiber.StatusNotFound, err.Error())
 	} else {
 		return c.JSON(sticker)
 	}
+}
+
+func openStickerByAlias(c *fiber.Ctx) error {
+	alias := c.Params("alias")
+	region := c.Query("region")
+
+	sticker, err := services.GetStickerWithAlias(alias)
+	if err != nil {
+		return fiber.NewError(fiber.StatusNotFound, err.Error())
+	}
+
+	var url, mimetype string
+	if len(region) > 0 {
+		url, mimetype, err = services.OpenAttachmentByRID(sticker.Attachment.Rid, region)
+	} else {
+		url, mimetype, err = services.OpenAttachmentByRID(sticker.Attachment.Rid)
+	}
+
+	if err != nil {
+		return fiber.NewError(fiber.StatusNotFound, err.Error())
+	}
+
+	c.Set(fiber.HeaderContentType, mimetype)
+
+	if strings.HasPrefix(url, "file://") {
+		fp := strings.Replace(url, "file://", "", 1)
+		return c.SendFile(fp)
+	}
+
+	return c.Redirect(url, fiber.StatusFound)
 }
 
 func listStickers(c *fiber.Ctx) error {

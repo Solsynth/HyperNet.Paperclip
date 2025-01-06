@@ -49,7 +49,8 @@ func MapAPIs(app *fiber.App, baseURL string) {
 		stickers := api.Group("/stickers").Name("Stickers API")
 		{
 			stickers.Get("/lookup", lookupStickerBatch)
-			stickers.Get("/lookup/:alias", lookupSticker)
+			stickers.Get("/lookup/:alias", getStickerByAlias)
+			stickers.Get("/lookup/:alias/open", openStickerByAlias)
 
 			stickers.Get("/", listStickers)
 			stickers.Get("/:stickerId", getSticker)
