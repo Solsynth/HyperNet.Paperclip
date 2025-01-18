@@ -223,6 +223,7 @@ func AnalyzeAttachment(file models.Attachment) error {
 	if err := tx.Model(&file).Updates(&models.Attachment{
 		IsAnalyzed: true,
 		Metadata:   file.Metadata,
+		HashCode:   file.HashCode,
 	}).Error; err != nil {
 		tx.Rollback()
 		return fmt.Errorf("unable to update file record: %v", err)
