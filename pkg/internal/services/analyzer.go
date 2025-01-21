@@ -99,8 +99,8 @@ func ScanUnanalyzedFileFromDatabase() {
 	}()
 }
 
-func calculateAspectRatio(width, height int, orientation int) float64 {
-	if orientation == 6 || orientation == 8 {
+func calculateAspectRatio(width, height int, orientation string) float64 {
+	if orientation == "6" || orientation == "8" {
 		width, height = height, width
 	}
 	return float64(width) / float64(height)
@@ -173,7 +173,7 @@ func AnalyzeAttachment(file models.Attachment) error {
 				for _, data := range exif {
 					for k := range data.Fields {
 						if k == "Orientation" {
-							file.Metadata["ratio"] = calculateAspectRatio(width, height, data.Fields[k].(int))
+							file.Metadata["ratio"] = calculateAspectRatio(width, height, data.Fields[k].(string))
 						}
 						if strings.HasPrefix(k, "GPS") {
 							data.Clear(k)
@@ -217,7 +217,7 @@ func AnalyzeAttachment(file models.Attachment) error {
 				for _, data := range exif {
 					for k := range data.Fields {
 						if k == "Orientation" {
-							file.Metadata["ratio"] = calculateAspectRatio(stream.Width, stream.Height, data.Fields[k].(int))
+							file.Metadata["ratio"] = calculateAspectRatio(stream.Width, stream.Height, data.Fields[k].(string))
 						}
 						if strings.HasPrefix(k, "GPS") {
 							data.Clear(k)
