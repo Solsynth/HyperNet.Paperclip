@@ -99,16 +99,27 @@ func ScanUnanalyzedFileFromDatabase() {
 	}()
 }
 
-func parseExifOrientation(output string) (int, error) {
-	parts := strings.Fields(output)
-	if len(parts) < 2 {
-		return 0, fmt.Errorf("unexpected format: %s", output)
+func parseExifOrientation(src string) int {
+	switch src {
+	case "Horizontal":
+		return 1
+	case "Mirror horizontal":
+		return 2
+	case "Rotate 180":
+		return 3
+	case "Mirror vertical":
+		return 4
+	case "Mirror horizontal and rotate 270 CW":
+		return 5
+	case "Rotate 90 CW":
+		return 6
+	case "Mirror horizontal and rotate 90 CW":
+		return 7
+	case "Rotate 270 CW":
+		return 8
+	default:
+		return 0
 	}
-	orientation, err := strconv.Atoi(parts[len(parts)-1])
-	if err != nil {
-		return 0, fmt.Errorf("invalid orientation value: %s", parts[len(parts)-1])
-	}
-	return orientation, nil
 }
 
 func calculateAspectRatio(width, height int, orientation int) float64 {
@@ -186,7 +197,7 @@ func AnalyzeAttachment(file models.Attachment) error {
 				for _, data := range exif {
 					for k := range data.Fields {
 						if k == "Orientation" {
-							ori, _ := parseExifOrientation(data.Fields[k].(string))
+							ori := parseExifOrientation(data.Fields[k].(string))
 							file.Metadata["ratio"] = calculateAspectRatio(width, height, ori)
 						}
 						if strings.HasPrefix(k, "GPS") {
@@ -231,7 +242,7 @@ func AnalyzeAttachment(file models.Attachment) error {
 				for _, data := range exif {
 					for k := range data.Fields {
 						if k == "Orientation" {
-							ori, _ := parseExifOrientation(data.Fields[k].(string))
+							ori := parseExifOrientation(data.Fields[k].(string))
 							file.Metadata["ratio"] = calculateAspectRatio(stream.Width, stream.Height, ori)
 						}
 						if strings.HasPrefix(k, "GPS") {
