@@ -33,10 +33,6 @@ cloud.google.com/go/storage v1.10.0/go.mod h1:FLPqc6j+Ki4BU591ie1oL6qBQGu2Bl/tZ9
 dmitri.shuralyov.com/gpu/mtl v0.0.0-20190408044501-666a987793e9/go.mod h1:H6x//7gZCb22OMCxBHrMx7a5I7Hp++hsVxbQ4BYO7hU=
 filippo.io/edwards25519 v1.1.0 h1:FNf4tywRC1HmFuKW5xopWpigGjJKiJSV0Cqo0cJWDaA=
 filippo.io/edwards25519 v1.1.0/go.mod h1:BxyFTGdWcka3PhytdK4V28tE5sGfRvvvRV7EaN4VDT4=
-git.solsynth.dev/hypernet/nexus v0.0.0-20241103161217-e1207a8deb28 h1:ZNPw/7qWd3FvpMuIbQzz7AbfZEUpbiV1dRFDT9frP2Q=
-git.solsynth.dev/hypernet/nexus v0.0.0-20241103161217-e1207a8deb28/go.mod h1:PhLCv2lsNoscPVJbkWnxwQnJ141lc4RIEkVffrHwl4s=
-git.solsynth.dev/hypernet/nexus v0.0.0-20241103165336-3e68cea0d783 h1:Jzi1zWmUFlUl/u/OLwQ3rUKI7OUvSPMXW0tfxPSXLUY=
-git.solsynth.dev/hypernet/nexus v0.0.0-20241103165336-3e68cea0d783/go.mod h1:PhLCv2lsNoscPVJbkWnxwQnJ141lc4RIEkVffrHwl4s=
 git.solsynth.dev/hypernet/nexus v0.0.0-20241103165538-c0fec1084611 h1:ZEzUDsO88X+amOaEKZOpnQHHNYm5iw3hCBdy138sQro=
 git.solsynth.dev/hypernet/nexus v0.0.0-20241103165538-c0fec1084611/go.mod h1:PhLCv2lsNoscPVJbkWnxwQnJ141lc4RIEkVffrHwl4s=
 git.solsynth.dev/hypernet/passport v0.0.0-20241102174750-808e7998dd1c h1:RVY0xsYGpb22ZuITxS+xpFu76XpPDrOpbIuSMDjW1+Q=
