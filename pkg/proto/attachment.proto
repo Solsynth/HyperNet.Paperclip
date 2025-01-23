@@ -1,0 +1,60 @@
+syntax = "proto3";
+
+option go_package = ".;proto";
+
+package proto;
+
+service AttachmentService {
+  rpc GetAttachment(GetAttachmentRequest) returns (GetAttachmentResponse) {}
+  rpc ListAttachment(ListAttachmentRequest) returns (ListAttachmentResponse) {}
+  rpc UpdateVisibility(UpdateVisibilityRequest) returns (UpdateVisibilityResponse) {}
+  rpc DeleteAttachment(DeleteAttachmentRequest) returns (DeleteAttachmentResponse) {}
+}
+
+message AttachmentInfo {
+    string id = 1;
+    string rid = 2;
+    string name = 3;
+    string type = 4;
+    string size = 5;
+    string hash = 6;
+    string mime = 7;
+    bool is_indexable = 8;
+}
+
+message GetAttachmentRequest {
+  optional uint64 id = 1;
+  optional string rid = 2;
+}
+
+message GetAttachmentResponse {
+  optional AttachmentInfo attachment = 1;
+}
+
+message ListAttachmentRequest {
+  repeated uint64 id = 1;
+  repeated string rid = 2;
+}
+
+message ListAttachmentResponse {
+  repeated AttachmentInfo attachments = 1;
+}
+
+message UpdateVisibilityRequest {
+  repeated uint64 id = 1;
+  repeated string rid = 2;
+  bool is_indexable = 3;
+}
+
+message UpdateVisibilityResponse {
+  int32 count = 1;
+}
+
+message DeleteAttachmentRequest {
+  repeated uint64 id = 1;
+  repeated string rid = 2;
+}
+
+message DeleteAttachmentResponse {
+  int32 count = 1;
+}

@@ -3,6 +3,8 @@ package models
 import (
 	"context"
 	"fmt"
+	"git.solsynth.dev/hypernet/paperclip/pkg/proto"
+	"strconv"
 	"time"
 
 	"git.solsynth.dev/hypernet/nexus/pkg/nex/cruda"
@@ -75,6 +77,23 @@ type Attachment struct {
 	FileChunks datatypes.JSONMap `json:"file_chunks" gorm:"-"`
 	IsUploaded bool              `json:"is_uploaded" gorm:"-"`
 	IsMature   bool              `json:"is_mature" gorm:"-"`
+}
+
+func (v *Attachment) ToAttachmentInfo() *proto.AttachmentInfo {
+	if v == nil {
+		return nil
+	}
+
+	return &proto.AttachmentInfo{
+		Id:          v.Uuid,
+		Rid:         v.Rid,
+		Name:        v.Name,
+		Type:        v.MimeType,
+		Size:        strconv.FormatInt(v.Size, 10),
+		Hash:        v.HashCode,
+		Mime:        v.MimeType,
+		IsIndexable: v.IsIndexable,
+	}
 }
 
 func (v *Attachment) AfterUpdate(tx *gorm.DB) error {

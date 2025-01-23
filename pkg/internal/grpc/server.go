@@ -1,9 +1,10 @@
 package grpc
 
 import (
+	"git.solsynth.dev/hypernet/paperclip/pkg/proto"
 	"net"
 
-	"git.solsynth.dev/hypernet/nexus/pkg/proto"
+	nproto "git.solsynth.dev/hypernet/nexus/pkg/proto"
 	"github.com/spf13/viper"
 	"google.golang.org/grpc"
 	health "google.golang.org/grpc/health/grpc_health_v1"
@@ -11,7 +12,8 @@ import (
 )
 
 type Server struct {
-	proto.UnimplementedDirectoryServiceServer
+	nproto.UnimplementedDirectoryServiceServer
+	proto.UnimplementedAttachmentServiceServer
 	health.UnimplementedHealthServer
 
 	srv *grpc.Server
@@ -22,7 +24,8 @@ func NewGrpc() *Server {
 		srv: grpc.NewServer(),
 	}
 
-	proto.RegisterDirectoryServiceServer(server.srv, server)
+	nproto.RegisterDirectoryServiceServer(server.srv, server)
+	proto.RegisterAttachmentServiceServer(server.srv, server)
 	health.RegisterHealthServer(server.srv, server)
 
 	reflection.Register(server.srv)
