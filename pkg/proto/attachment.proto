@@ -25,6 +25,7 @@ message AttachmentInfo {
 message GetAttachmentRequest {
   optional uint64 id = 1;
   optional string rid = 2;
+  optional uint64 user_id = 3;
 }
 
 message GetAttachmentResponse {
@@ -34,6 +35,7 @@ message GetAttachmentResponse {
 message ListAttachmentRequest {
   repeated uint64 id = 1;
   repeated string rid = 2;
+  optional uint64 user_id = 3;
 }
 
 message ListAttachmentResponse {
@@ -44,6 +46,7 @@ message UpdateVisibilityRequest {
   repeated uint64 id = 1;
   repeated string rid = 2;
   bool is_indexable = 3;
+  optional uint64 user_id = 4;
 }
 
 message UpdateVisibilityResponse {
@@ -53,6 +56,7 @@ message UpdateVisibilityResponse {
 message DeleteAttachmentRequest {
   repeated uint64 id = 1;
   repeated string rid = 2;
+  optional uint64 user_id = 3;
 }
 
 message DeleteAttachmentResponse {

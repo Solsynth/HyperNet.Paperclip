@@ -2,6 +2,7 @@ package grpc
 
 import (
 	"context"
+
 	"git.solsynth.dev/hypernet/paperclip/pkg/internal/database"
 	"git.solsynth.dev/hypernet/paperclip/pkg/internal/models"
 	"git.solsynth.dev/hypernet/paperclip/pkg/proto"
@@ -18,6 +19,10 @@ func (v *Server) GetAttachment(ctx context.Context, request *proto.GetAttachment
 		tx = tx.Where("rid = ?", request.Rid)
 	} else {
 		return nil, status.Error(codes.InvalidArgument, "you must provide id or random id")
+	}
+
+	if request.UserId != nil {
+		tx = tx.Where("account_id = ?", request.UserId)
 	}
 
 	var attachment models.Attachment
@@ -67,6 +72,10 @@ func (v *Server) UpdateVisibility(ctx context.Context, request *proto.UpdateVisi
 		tx = tx.Where("rid IN ?", request.Rid)
 	}
 
+	if request.UserId != nil {
+		tx = tx.Where("account_id = ?", request.UserId)
+	}
+
 	var rowsAffected int64
 	if err := tx.Update("is_indexable", request.IsIndexable).Error; err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
@@ -89,6 +98,10 @@ func (v *Server) DeleteAttachment(ctx context.Context, request *proto.DeleteAtta
 	}
 	if len(request.Rid) > 0 {
 		tx = tx.Where("rid IN ?", request.Rid)
+	}
+
+	if request.UserId != nil {
+		tx = tx.Where("account_id = ?", request.UserId)
 	}
 
 	var rowsAffected int64
