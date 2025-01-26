@@ -6,6 +6,7 @@ import (
 	"git.solsynth.dev/hypernet/paperclip/pkg/internal/database"
 	"git.solsynth.dev/hypernet/paperclip/pkg/internal/models"
 	"git.solsynth.dev/hypernet/paperclip/pkg/proto"
+	"github.com/rs/zerolog/log"
 	"github.com/samber/lo"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -75,6 +76,8 @@ func (v *Server) UpdateVisibility(ctx context.Context, request *proto.UpdateVisi
 	if request.UserId != nil {
 		tx = tx.Where("account_id = ?", request.UserId)
 	}
+
+	log.Debug().Any("id", request.Id).Any("rid", request.Rid).Any("user", request.UserId).Msg("Update attachment visibility via grpc...")
 
 	var rowsAffected int64
 	if err := tx.Updates(&models.Attachment{IsIndexable: request.IsIndexable}).Error; err != nil {
