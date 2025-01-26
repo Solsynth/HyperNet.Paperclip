@@ -62,6 +62,8 @@ func (v *Server) ListAttachment(ctx context.Context, request *proto.ListAttachme
 }
 
 func (v *Server) UpdateVisibility(ctx context.Context, request *proto.UpdateVisibilityRequest) (*proto.UpdateVisibilityResponse, error) {
+	log.Debug().Any("request", request).Msg("Update attachment visibility via grpc...")
+
 	tx := database.C
 	if len(request.Id) == 0 && len(request.Rid) == 0 {
 		return nil, status.Error(codes.InvalidArgument, "you must provide at least one id or random id")
@@ -76,8 +78,6 @@ func (v *Server) UpdateVisibility(ctx context.Context, request *proto.UpdateVisi
 	if request.UserId != nil {
 		tx = tx.Where("account_id = ?", request.UserId)
 	}
-
-	log.Debug().Any("id", request.Id).Any("rid", request.Rid).Any("user", request.UserId).Msg("Update attachment visibility via grpc...")
 
 	var rowsAffected int64
 	if err := tx.Updates(&models.Attachment{IsIndexable: request.IsIndexable}).Error; err != nil {
