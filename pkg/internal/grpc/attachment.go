@@ -77,7 +77,7 @@ func (v *Server) UpdateVisibility(ctx context.Context, request *proto.UpdateVisi
 	}
 
 	var rowsAffected int64
-	if err := tx.Update("is_indexable", request.IsIndexable).Error; err != nil {
+	if err := tx.Updates(&models.Attachment{IsIndexable: request.IsIndexable}).Error; err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	} else {
 		rowsAffected = tx.RowsAffected
