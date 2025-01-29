@@ -41,13 +41,15 @@ func createAttachmentFragment(c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusBadRequest, fmt.Sprintf("unable to get attachment pool info: %v", err))
 	}
 
-	if !user.HasPermNode("CreateAttachments", data.Size) {
-		return fiber.NewError(fiber.StatusForbidden, "you are not permitted to create attachments like this large")
+	if !user.HasPermNode("CreateAttachments", true) {
+		return fiber.NewError(fiber.StatusForbidden, "you are not permitted to create attachments")
 	} else if pool.Config.Data().MaxFileSize != nil && *pool.Config.Data().MaxFileSize > data.Size {
 		return fiber.NewError(fiber.StatusBadRequest, fmt.Sprintf("attachment pool %s doesn't allow file larger than %d", pool.Alias, *pool.Config.Data().MaxFileSize))
 	}
 
-	metadata, err := services.NewAttachmentFragment(database.C, user, models.AttachmentFragment{
+	tx := database.C.Begin()
+
+	metadata, err := services.NewAttachmentFragment(tx, user, models.AttachmentFragment{
 		Name:        data.FileName,
 		Size:        data.Size,
 		Alternative: data.Alternative,
@@ -62,6 +64,15 @@ func createAttachmentFragment(c *fiber.Ctx) error {
 	} else {
 		metadata.FileChunksMissing = services.FindFragmentMissingChunks(metadata)
 	}
+
+	// If pool has no belongs to, it means it is shared pool, apply shared attachment discount
+	withDiscount := pool.AccountID == nil
+	if err := services.PlaceOrder(user.ID, data.Size, withDiscount); err != nil {
+		tx.Rollback()
+		return fiber.NewError(fiber.StatusPaymentRequired, err.Error())
+	}
+
+	tx.Commit()
 
 	return c.JSON(fiber.Map{
 		"chunk_size":  viper.GetInt64("performance.file_chunk_size"),

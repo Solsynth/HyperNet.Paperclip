@@ -32,8 +32,8 @@ func createAttachmentDirectly(c *fiber.Ctx) error {
 		return err
 	}
 
-	if !user.HasPermNode("CreateAttachments", file.Size) {
-		return fiber.NewError(fiber.StatusForbidden, "you are not permitted to create attachments like this large")
+	if !user.HasPermNode("CreateAttachments", true) {
+		return fiber.NewError(fiber.StatusForbidden, "you are not permitted to create attachments")
 	} else if pool.Config.Data().MaxFileSize != nil && file.Size > *pool.Config.Data().MaxFileSize {
 		return fiber.NewError(fiber.StatusBadRequest, fmt.Sprintf("attachment pool %s doesn't allow file larger than %d", pool.Alias, *pool.Config.Data().MaxFileSize))
 	}
@@ -60,6 +60,13 @@ func createAttachmentDirectly(c *fiber.Ctx) error {
 	if err := services.UploadFileToTemporary(c, file, metadata); err != nil {
 		tx.Rollback()
 		return fiber.NewError(fiber.StatusBadRequest, err.Error())
+	}
+
+	// If pool has no belongs to, it means it is shared pool, apply shared attachment discount
+	withDiscount := pool.AccountID == nil
+	if err := services.PlaceOrder(user.ID, file.Size, withDiscount); err != nil {
+		tx.Rollback()
+		return fiber.NewError(fiber.StatusPaymentRequired, err.Error())
 	}
 
 	tx.Commit()

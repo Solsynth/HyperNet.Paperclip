@@ -3,10 +3,11 @@ module git.solsynth.dev/hypernet/paperclip
 go 1.23.2
 
 require (
-	git.solsynth.dev/hypernet/nexus v0.0.0-20241103165538-c0fec1084611
-	git.solsynth.dev/hypernet/passport v0.0.0-20241102174750-808e7998dd1c
+	git.solsynth.dev/hypernet/nexus v0.0.0-20241123050605-25ab1371739b
+	git.solsynth.dev/hypernet/passport v0.0.0-20250128183757-09010d5867ed
+	git.solsynth.dev/hypernet/wallet v0.0.0-20250129103922-9b5f67e67788
 	github.com/barasher/go-exiftool v1.10.0
-	github.com/dgraph-io/ristretto v0.1.1
+	github.com/dgraph-io/ristretto v0.2.0
 	github.com/eko/gocache/lib/v4 v4.1.6
 	github.com/eko/gocache/store/ristretto/v4 v4.2.2
 	github.com/fatih/color v1.18.0
@@ -32,7 +33,7 @@ require (
 
 require (
 	filippo.io/edwards25519 v1.1.0 // indirect
-	git.solsynth.dev/hypernet/pusher v0.0.0-20241026153052-cd2c326efa4e // indirect
+	git.solsynth.dev/hypernet/pusher v0.0.0-20241228030233-50ff8304e465 // indirect
 	github.com/andybalholm/brotli v1.1.1 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
@@ -44,7 +45,6 @@ require (
 	github.com/go-sql-driver/mysql v1.8.1 // indirect
 	github.com/goccy/go-json v0.10.3 // indirect
 	github.com/golang-jwt/jwt/v5 v5.2.1 // indirect
-	github.com/golang/glog v1.2.2 // indirect
 	github.com/golang/mock v1.6.0 // indirect
 	github.com/golang/protobuf v1.5.4 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
