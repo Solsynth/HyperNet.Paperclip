@@ -9,24 +9,25 @@ import (
 	wproto "git.solsynth.dev/hypernet/wallet/pkg/proto"
 	"github.com/rs/zerolog/log"
 	"github.com/samber/lo"
+	"github.com/spf13/viper"
 )
-
-const DiscountFileSize = 52428800 // 50 MiB
 
 // PlaceOrder create a transaction if needed for user
 // Pricing according here: https://kb.solsynth.dev/solar-network/wallet#file-uploads
 func PlaceOrder(user uint, filesize int64, withDiscount bool) error {
-	if filesize <= DiscountFileSize && withDiscount {
+	discountFileSize := viper.GetInt64("payment.discount")
+
+	if filesize <= discountFileSize && withDiscount {
 		// Discount included
 		return nil
 	}
 
 	var amount float64
 	if withDiscount {
-		billableSize := filesize - DiscountFileSize
+		billableSize := filesize - discountFileSize
 		amount = float64(billableSize) / 1024 / 1024 * 1
-	} else if filesize > DiscountFileSize {
-		amount = 50 + float64(filesize-DiscountFileSize)/1024/1024*5
+	} else if filesize > discountFileSize {
+		amount = 50 + float64(filesize-discountFileSize)/1024/1024*5
 	} else {
 		amount = float64(filesize) / 1024 / 1024 * 1
 	}

@@ -26,3 +26,6 @@ access_baseurl = "http://192.168.50.133:8004"
 
 [security]
 internal_public_key = "keys/internal_public_key.pem"
+
+[payment]
+discount = 52428800
