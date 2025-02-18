@@ -9,6 +9,7 @@ func MapAPIs(app *fiber.App, baseURL string) {
 	api := app.Group(baseURL).Name("API")
 	{
 		api.Get("/destinations", listDestination)
+		api.Get("/billing", getBillingStatus)
 
 		boost := api.Group("/boosts").Name("Boosts API")
 		{

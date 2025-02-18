@@ -2,6 +2,7 @@ package api
 
 import (
 	"fmt"
+	"github.com/spf13/viper"
 	"strings"
 
 	"git.solsynth.dev/hypernet/nexus/pkg/nex/sec"
@@ -12,6 +13,25 @@ import (
 	"git.solsynth.dev/hypernet/paperclip/pkg/internal/services"
 	"github.com/gofiber/fiber/v2"
 )
+
+func getBillingStatus(c *fiber.Ctx) error {
+	if err := sec.EnsureAuthenticated(c); err != nil {
+		return err
+	}
+	user := c.Locals("nex_user").(*sec.UserInfo)
+
+	currentBytes, err := services.GetLastDayUploadedBytes(user.ID)
+	if err != nil {
+		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+	}
+	discountFileSize := viper.GetInt64("payment.discount")
+
+	return c.JSON(fiber.Map{
+		"current_bytes":      currentBytes,
+		"discount_file_size": discountFileSize,
+		"included_ratio":     float64(currentBytes) / float64(discountFileSize),
+	})
+}
 
 func openAttachment(c *fiber.Ctx) error {
 	id := c.Params("id")
