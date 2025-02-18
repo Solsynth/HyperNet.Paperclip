@@ -3,6 +3,8 @@ package services
 import (
 	"context"
 	"fmt"
+	"git.solsynth.dev/hypernet/paperclip/pkg/internal/database"
+	"git.solsynth.dev/hypernet/paperclip/pkg/internal/models"
 	"time"
 
 	"git.solsynth.dev/hypernet/paperclip/pkg/internal/gap"
@@ -12,22 +14,34 @@ import (
 	"github.com/spf13/viper"
 )
 
+func GetLastDayUploadedBytes(user uint) (int64, error) {
+	deadline := time.Now().Add(-24 * time.Hour)
+	var totalSize int64
+	if err := database.C.
+		Model(&models.Attachment{}).
+		Where("account_id = ?", user).
+		Where("created_at <= ?", deadline).
+		Select("SUM(size)").
+		Scan(&totalSize).Error; err != nil {
+		return totalSize, err
+	}
+	return totalSize, nil
+}
+
 // PlaceOrder create a transaction if needed for user
 // Pricing according here: https://kb.solsynth.dev/solar-network/wallet#file-uploads
 func PlaceOrder(user uint, filesize int64, withDiscount bool) error {
+	currentBytes, _ := GetLastDayUploadedBytes(user)
 	discountFileSize := viper.GetInt64("payment.discount")
 
-	if filesize <= discountFileSize && withDiscount {
+	if currentBytes+filesize <= discountFileSize {
 		// Discount included
 		return nil
 	}
 
 	var amount float64
 	if withDiscount {
-		billableSize := filesize - discountFileSize
-		amount = float64(billableSize) / 1024 / 1024 * 1
-	} else if filesize > discountFileSize {
-		amount = 50 + float64(filesize-discountFileSize)/1024/1024*5
+		amount = float64(filesize) / 1024 / 1024 * 1
 	} else {
 		amount = float64(filesize) / 1024 / 1024 * 1
 	}
