@@ -3,9 +3,10 @@ package services
 import (
 	"context"
 	"fmt"
+	"time"
+
 	"git.solsynth.dev/hypernet/paperclip/pkg/internal/database"
 	"git.solsynth.dev/hypernet/paperclip/pkg/internal/models"
-	"time"
 
 	"git.solsynth.dev/hypernet/paperclip/pkg/internal/gap"
 	wproto "git.solsynth.dev/hypernet/wallet/pkg/proto"
@@ -20,7 +21,7 @@ func GetLastDayUploadedBytes(user uint) (int64, error) {
 	if err := database.C.
 		Model(&models.Attachment{}).
 		Where("account_id = ?", user).
-		Where("created_at <= ?", deadline).
+		Where("created_at >= ?", deadline).
 		Select("SUM(size)").
 		Scan(&totalSize).Error; err != nil {
 		return totalSize, err
