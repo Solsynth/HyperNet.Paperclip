@@ -97,7 +97,7 @@ func GetAttachmentCache(rid string) (models.Attachment, bool) {
 		GetAttachmentCacheKey(rid),
 		new(models.Attachment),
 	); err == nil {
-		return val.(models.Attachment), true
+		return *val.(*models.Attachment), true
 	}
 	return models.Attachment{}, false
 }
