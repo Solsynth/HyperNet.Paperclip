@@ -12,6 +12,7 @@ var AutoMaintainRange = []any{
 	&models.AttachmentBoost{},
 	&models.StickerPack{},
 	&models.Sticker{},
+	&models.StickerPackOwnership{},
 }
 
 func RunMigration(source *gorm.DB) error {

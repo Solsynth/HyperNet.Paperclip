@@ -62,10 +62,13 @@ func MapAPIs(app *fiber.App, baseURL string) {
 			packs := stickers.Group("/packs").Name("Sticker Packs API")
 			{
 				packs.Get("/", listStickerPacks)
+				packs.Get("/own", listOwnedStickerPacks)
 				packs.Get("/:packId", getStickerPack)
 				packs.Post("/", sec.ValidatorMiddleware, createStickerPack)
 				packs.Put("/:packId", sec.ValidatorMiddleware, updateStickerPack)
 				packs.Delete("/:packId", sec.ValidatorMiddleware, deleteStickerPack)
+				packs.Post("/:packId/own", addStickerPack)
+				packs.Delete("/:packId/own", removeStickerPack)
 			}
 		}
 	}

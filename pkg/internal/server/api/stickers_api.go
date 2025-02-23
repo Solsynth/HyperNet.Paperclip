@@ -2,12 +2,10 @@ package api
 
 import (
 	"fmt"
+	"github.com/samber/lo"
 	"strings"
 
 	"git.solsynth.dev/hypernet/nexus/pkg/nex/sec"
-	"git.solsynth.dev/hypernet/paperclip/pkg/internal/gap"
-	"git.solsynth.dev/hypernet/passport/pkg/authkit"
-
 	"git.solsynth.dev/hypernet/paperclip/pkg/internal/database"
 	"git.solsynth.dev/hypernet/paperclip/pkg/internal/models"
 	"git.solsynth.dev/hypernet/paperclip/pkg/internal/server/exts"
@@ -64,43 +62,28 @@ func openStickerByAlias(c *fiber.Ctx) error {
 }
 
 func listStickers(c *fiber.Ctx) error {
-	take := c.QueryInt("take", 0)
-	offset := c.QueryInt("offset", 0)
-
-	if take > 100 {
-		take = 100
+	if err := sec.EnsureAuthenticated(c); err != nil {
+		return err
 	}
+	user := c.Locals("nex_user").(*sec.UserInfo)
 
-	tx := database.C
-
-	if len(c.Query("author")) > 0 {
-		author, err := authkit.GetUserByName(gap.Nx, c.Query("author"))
-		if err == nil {
-			tx = tx.Where("account_id = ?", author.ID)
-		}
-	}
-
-	if val := c.QueryInt("pack", 0); val > 0 {
-		tx = tx.Where("pack_id = ?", val)
-	}
-
-	var count int64
-	countTx := tx
-	if err := countTx.Model(&models.Sticker{}).Count(&count).Error; err != nil {
+	var ownerships []models.StickerPackOwnership
+	if err := database.C.Where("account_id = ?", user.ID).Find(&ownerships).Error; err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
 
+	tx := database.C.Where("pack_id IN ?", lo.Map(ownerships, func(o models.StickerPackOwnership, _ int) uint {
+		return o.PackID
+	}))
+
 	var stickers []models.Sticker
-	if err := tx.Limit(take).Offset(offset).
+	if err := tx.
 		Preload("Attachment").Preload("Pack").
 		Find(&stickers).Error; err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
 
-	return c.JSON(fiber.Map{
-		"count": count,
-		"data":  stickers,
-	})
+	return c.JSON(stickers)
 }
 
 func getSticker(c *fiber.Ctx) error {

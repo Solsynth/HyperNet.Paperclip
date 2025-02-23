@@ -9,6 +9,7 @@ import (
 	"git.solsynth.dev/hypernet/paperclip/pkg/internal/services"
 	"git.solsynth.dev/hypernet/passport/pkg/authkit"
 	"github.com/gofiber/fiber/v2"
+	"github.com/samber/lo"
 )
 
 func listStickerPacks(c *fiber.Ctx) error {
@@ -42,6 +43,29 @@ func listStickerPacks(c *fiber.Ctx) error {
 		"count": count,
 		"data":  packs,
 	})
+}
+
+func listOwnedStickerPacks(c *fiber.Ctx) error {
+	if err := sec.EnsureAuthenticated(c); err != nil {
+		return err
+	}
+	user := c.Locals("nex_user").(*sec.UserInfo)
+
+	var ownerships []models.StickerPackOwnership
+	if err := database.C.Where("account_id = ?", user.ID).Find(&ownerships).Error; err != nil {
+		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+	}
+
+	idSet := lo.Map(ownerships, func(o models.StickerPackOwnership, _ int) uint {
+		return o.PackID
+	})
+
+	var packs []models.StickerPack
+	if err := database.C.Where("id IN ?", idSet).Find(&packs).Error; err != nil {
+		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+	}
+
+	return c.JSON(packs)
 }
 
 func getStickerPack(c *fiber.Ctx) error {
@@ -119,4 +143,44 @@ func deleteStickerPack(c *fiber.Ctx) error {
 	}
 
 	return c.JSON(pack)
+}
+
+func addStickerPack(c *fiber.Ctx) error {
+	if err := sec.EnsureAuthenticated(c); err != nil {
+		return err
+	}
+	user := c.Locals("nex_user").(*sec.UserInfo)
+
+	packId, _ := c.ParamsInt("packId", 0)
+	var pack models.StickerPack
+	if err := database.C.Where("id = ?", packId).First(&pack).Error; err != nil {
+		return fiber.NewError(fiber.StatusNotFound, err.Error())
+	}
+
+	ownership, err := services.AddStickerPack(user.ID, pack)
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, err.Error())
+	}
+
+	return c.JSON(ownership)
+}
+
+func removeStickerPack(c *fiber.Ctx) error {
+	if err := sec.EnsureAuthenticated(c); err != nil {
+		return err
+	}
+	user := c.Locals("nex_user").(*sec.UserInfo)
+
+	packId, _ := c.ParamsInt("packId", 0)
+	var pack models.StickerPack
+	if err := database.C.Where("id = ?", packId).First(&pack).Error; err != nil {
+		return fiber.NewError(fiber.StatusNotFound, err.Error())
+	}
+
+	ownership, err := services.RemoveStickerPack(user.ID, pack)
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, err.Error())
+	}
+
+	return c.JSON(ownership)
 }

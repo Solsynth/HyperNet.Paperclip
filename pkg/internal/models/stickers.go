@@ -25,3 +25,8 @@ type StickerPack struct {
 	Stickers    []Sticker `json:"stickers" gorm:"foreignKey:PackID;constraint:OnDelete:CASCADE"`
 	AccountID   uint      `json:"account_id"`
 }
+
+type StickerPackOwnership struct {
+	PackID    uint `json:"pack_id" gorm:"primaryKey"`
+	AccountID uint `json:"account_id" gorm:"primaryKey"`
+}

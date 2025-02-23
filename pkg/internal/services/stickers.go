@@ -1,7 +1,9 @@
 package services
 
 import (
+	"errors"
 	"fmt"
+	"gorm.io/gorm"
 
 	"git.solsynth.dev/hypernet/paperclip/pkg/internal/database"
 	"git.solsynth.dev/hypernet/paperclip/pkg/internal/models"
@@ -70,4 +72,37 @@ func DeleteSticker(sticker models.Sticker) (models.Sticker, error) {
 		return sticker, err
 	}
 	return sticker, nil
+}
+
+func AddStickerPack(user uint, pack models.StickerPack) (models.StickerPackOwnership, error) {
+	var ownership models.StickerPackOwnership
+	if err := database.C.
+		Where("account_id = ?", user).
+		First(&ownership).Error; err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+		return ownership, fmt.Errorf("unable to get current ownership: %v", err)
+	} else if err == nil {
+		return ownership, fmt.Errorf("you already own this pack")
+	}
+
+	ownership = models.StickerPackOwnership{
+		AccountID: user,
+		PackID:    pack.ID,
+	}
+
+	err := database.C.Save(&ownership).Error
+
+	return ownership, err
+}
+
+func RemoveStickerPack(user uint, pack models.StickerPack) (models.StickerPackOwnership, error) {
+	var ownership models.StickerPackOwnership
+	if err := database.C.
+		Where("account_id = ? AND pack_id = ?", user, pack.ID).
+		First(&ownership).Error; err != nil {
+		return ownership, fmt.Errorf("unable to get current ownership: %v", err)
+	}
+
+	err := database.C.Delete(&ownership).Error
+
+	return ownership, err
 }
