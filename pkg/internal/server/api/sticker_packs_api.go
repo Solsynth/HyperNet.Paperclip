@@ -75,6 +75,15 @@ func getStickerPack(c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusNotFound, err.Error())
 	}
 
+	var stickers []models.Sticker
+	if err := database.C.Where("pack_id = ?", pack.ID).
+		Preload("Attachment").
+		Find(&stickers).Error; err != nil {
+		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+	} else {
+		pack.Stickers = stickers
+	}
+
 	return c.JSON(pack)
 }
 
