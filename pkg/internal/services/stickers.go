@@ -3,6 +3,7 @@ package services
 import (
 	"errors"
 	"fmt"
+
 	"gorm.io/gorm"
 
 	"git.solsynth.dev/hypernet/paperclip/pkg/internal/database"
@@ -77,7 +78,7 @@ func DeleteSticker(sticker models.Sticker) (models.Sticker, error) {
 func AddStickerPack(user uint, pack models.StickerPack) (models.StickerPackOwnership, error) {
 	var ownership models.StickerPackOwnership
 	if err := database.C.
-		Where("account_id = ?", user).
+		Where("account_id = ? AND pack_id = ?", user, pack.ID).
 		First(&ownership).Error; err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return ownership, fmt.Errorf("unable to get current ownership: %v", err)
 	} else if err == nil {
