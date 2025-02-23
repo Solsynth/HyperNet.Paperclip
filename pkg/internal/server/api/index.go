@@ -49,16 +49,6 @@ func MapAPIs(app *fiber.App, baseURL string) {
 
 		stickers := api.Group("/stickers").Name("Stickers API")
 		{
-			stickers.Get("/lookup", lookupStickerBatch)
-			stickers.Get("/lookup/:alias", getStickerByAlias)
-			stickers.Get("/lookup/:alias/open", openStickerByAlias)
-
-			stickers.Get("/", listStickers)
-			stickers.Get("/:stickerId", getSticker)
-			stickers.Post("/", sec.ValidatorMiddleware, createSticker)
-			stickers.Put("/:stickerId", sec.ValidatorMiddleware, updateSticker)
-			stickers.Delete("/:stickerId", sec.ValidatorMiddleware, deleteSticker)
-
 			packs := stickers.Group("/packs").Name("Sticker Packs API")
 			{
 				packs.Get("/", listStickerPacks)
@@ -70,6 +60,16 @@ func MapAPIs(app *fiber.App, baseURL string) {
 				packs.Post("/:packId/own", addStickerPack)
 				packs.Delete("/:packId/own", removeStickerPack)
 			}
+
+			stickers.Get("/lookup", lookupStickerBatch)
+			stickers.Get("/lookup/:alias", getStickerByAlias)
+			stickers.Get("/lookup/:alias/open", openStickerByAlias)
+
+			stickers.Get("/", listStickers)
+			stickers.Get("/:stickerId", getSticker)
+			stickers.Post("/", sec.ValidatorMiddleware, createSticker)
+			stickers.Put("/:stickerId", sec.ValidatorMiddleware, updateSticker)
+			stickers.Delete("/:stickerId", sec.ValidatorMiddleware, deleteSticker)
 		}
 	}
 }
