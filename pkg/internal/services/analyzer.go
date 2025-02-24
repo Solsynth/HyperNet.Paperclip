@@ -21,9 +21,11 @@ import (
 	"git.solsynth.dev/hypernet/paperclip/pkg/internal/models"
 	jsoniter "github.com/json-iterator/go"
 	"github.com/k0kubun/go-ansi"
+	"github.com/kettek/apng"
 	"github.com/rs/zerolog/log"
 	"github.com/schollz/progressbar/v3"
 	"github.com/spf13/viper"
+	"golang.org/x/image/webp"
 	"gopkg.in/vansante/go-ffprobe.v2"
 
 	_ "image/gif"
@@ -175,7 +177,15 @@ func AnalyzeAttachment(file models.Attachment) error {
 				return fmt.Errorf("unable to open file: %v", err)
 			}
 			defer reader.Close()
-			im, _, err := image.Decode(reader)
+			var im image.Image
+			switch file.MimeType {
+			case "image/webp":
+				im, err = webp.Decode(reader)
+			case "image/apng":
+				im, err = apng.Decode(reader)
+			default:
+				im, _, err = image.Decode(reader)
+			}
 			if err != nil {
 				return fmt.Errorf("unable to decode file as an image: %v", err)
 			}

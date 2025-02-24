@@ -16,6 +16,7 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/json-iterator/go v1.1.12
 	github.com/k0kubun/go-ansi v0.0.0-20180517002512-3bf9e2903213
+	github.com/kettek/apng v0.0.0-20220823221153-ff692776a607
 	github.com/minio/minio-go/v7 v7.0.70
 	github.com/robfig/cron/v3 v3.0.1
 	github.com/rs/zerolog v1.33.0
@@ -23,6 +24,7 @@ require (
 	github.com/schollz/progressbar/v3 v3.14.4
 	github.com/spf13/cast v1.7.0
 	github.com/spf13/viper v1.19.0
+	golang.org/x/image v0.0.0-20190802002840-cff245a6509b
 	google.golang.org/grpc v1.67.1
 	google.golang.org/protobuf v1.35.1
 	gopkg.in/vansante/go-ffprobe.v2 v2.2.0
