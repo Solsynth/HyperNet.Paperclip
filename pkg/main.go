@@ -80,7 +80,7 @@ func main() {
 
 	// Configure timed tasks
 	quartz := cron.New(cron.WithLogger(cron.VerbosePrintfLogger(&log.Logger)))
-	quartz.AddFunc("@every 60m", services.DoUnusedAttachmentCleanup)
+	// quartz.AddFunc("@every 60m", services.DoUnusedAttachmentCleanup)
 	quartz.AddFunc("@every 60m", fs.RunMarkLifecycleDeletionTask)
 	quartz.AddFunc("@every 60m", fs.RunMarkMultipartDeletionTask)
 	quartz.AddFunc("@midnight", fs.RunScheduleDeletionTask)
