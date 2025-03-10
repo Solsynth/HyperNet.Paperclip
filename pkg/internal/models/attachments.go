@@ -3,9 +3,10 @@ package models
 import (
 	"context"
 	"fmt"
-	"git.solsynth.dev/hypernet/paperclip/pkg/proto"
 	"strconv"
 	"time"
+
+	"git.solsynth.dev/hypernet/paperclip/pkg/proto"
 
 	"git.solsynth.dev/hypernet/nexus/pkg/nex/cruda"
 	"github.com/eko/gocache/lib/v4/cache"
@@ -56,6 +57,8 @@ type Attachment struct {
 	IsSelfRef   bool `json:"is_self_ref"`
 	IsIndexable bool `json:"is_indexable"` // Show this attachment in the public directory api or not
 
+	// Count the usage of this attachment across all services
+	// If this number remain 0, it will be deleted during the maintenance
 	UsedCount int `json:"used_count"`
 
 	Thumbnail    *Attachment `json:"thumbnail"`

@@ -22,6 +22,7 @@ const (
 	AttachmentService_GetAttachment_FullMethodName    = "/proto.AttachmentService/GetAttachment"
 	AttachmentService_ListAttachment_FullMethodName   = "/proto.AttachmentService/ListAttachment"
 	AttachmentService_UpdateVisibility_FullMethodName = "/proto.AttachmentService/UpdateVisibility"
+	AttachmentService_UpdateUsage_FullMethodName      = "/proto.AttachmentService/UpdateUsage"
 	AttachmentService_DeleteAttachment_FullMethodName = "/proto.AttachmentService/DeleteAttachment"
 )
 
@@ -32,6 +33,7 @@ type AttachmentServiceClient interface {
 	GetAttachment(ctx context.Context, in *GetAttachmentRequest, opts ...grpc.CallOption) (*GetAttachmentResponse, error)
 	ListAttachment(ctx context.Context, in *ListAttachmentRequest, opts ...grpc.CallOption) (*ListAttachmentResponse, error)
 	UpdateVisibility(ctx context.Context, in *UpdateVisibilityRequest, opts ...grpc.CallOption) (*UpdateVisibilityResponse, error)
+	UpdateUsage(ctx context.Context, in *UpdateUsageRequest, opts ...grpc.CallOption) (*UpdateUsageResponse, error)
 	DeleteAttachment(ctx context.Context, in *DeleteAttachmentRequest, opts ...grpc.CallOption) (*DeleteAttachmentResponse, error)
 }
 
@@ -73,6 +75,16 @@ func (c *attachmentServiceClient) UpdateVisibility(ctx context.Context, in *Upda
 	return out, nil
 }
 
+func (c *attachmentServiceClient) UpdateUsage(ctx context.Context, in *UpdateUsageRequest, opts ...grpc.CallOption) (*UpdateUsageResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(UpdateUsageResponse)
+	err := c.cc.Invoke(ctx, AttachmentService_UpdateUsage_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *attachmentServiceClient) DeleteAttachment(ctx context.Context, in *DeleteAttachmentRequest, opts ...grpc.CallOption) (*DeleteAttachmentResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(DeleteAttachmentResponse)
@@ -90,6 +102,7 @@ type AttachmentServiceServer interface {
 	GetAttachment(context.Context, *GetAttachmentRequest) (*GetAttachmentResponse, error)
 	ListAttachment(context.Context, *ListAttachmentRequest) (*ListAttachmentResponse, error)
 	UpdateVisibility(context.Context, *UpdateVisibilityRequest) (*UpdateVisibilityResponse, error)
+	UpdateUsage(context.Context, *UpdateUsageRequest) (*UpdateUsageResponse, error)
 	DeleteAttachment(context.Context, *DeleteAttachmentRequest) (*DeleteAttachmentResponse, error)
 	mustEmbedUnimplementedAttachmentServiceServer()
 }
@@ -109,6 +122,9 @@ func (UnimplementedAttachmentServiceServer) ListAttachment(context.Context, *Lis
 }
 func (UnimplementedAttachmentServiceServer) UpdateVisibility(context.Context, *UpdateVisibilityRequest) (*UpdateVisibilityResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateVisibility not implemented")
+}
+func (UnimplementedAttachmentServiceServer) UpdateUsage(context.Context, *UpdateUsageRequest) (*UpdateUsageResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateUsage not implemented")
 }
 func (UnimplementedAttachmentServiceServer) DeleteAttachment(context.Context, *DeleteAttachmentRequest) (*DeleteAttachmentResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteAttachment not implemented")
@@ -188,6 +204,24 @@ func _AttachmentService_UpdateVisibility_Handler(srv interface{}, ctx context.Co
 	return interceptor(ctx, in, info, handler)
 }
 
+func _AttachmentService_UpdateUsage_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateUsageRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AttachmentServiceServer).UpdateUsage(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AttachmentService_UpdateUsage_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AttachmentServiceServer).UpdateUsage(ctx, req.(*UpdateUsageRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _AttachmentService_DeleteAttachment_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(DeleteAttachmentRequest)
 	if err := dec(in); err != nil {
@@ -224,6 +258,10 @@ var AttachmentService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "UpdateVisibility",
 			Handler:    _AttachmentService_UpdateVisibility_Handler,
+		},
+		{
+			MethodName: "UpdateUsage",
+			Handler:    _AttachmentService_UpdateUsage_Handler,
 		},
 		{
 			MethodName: "DeleteAttachment",

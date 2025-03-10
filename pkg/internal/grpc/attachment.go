@@ -5,6 +5,7 @@ import (
 
 	"git.solsynth.dev/hypernet/paperclip/pkg/internal/database"
 	"git.solsynth.dev/hypernet/paperclip/pkg/internal/models"
+	"git.solsynth.dev/hypernet/paperclip/pkg/internal/services"
 	"git.solsynth.dev/hypernet/paperclip/pkg/proto"
 	"github.com/rs/zerolog/log"
 	"github.com/samber/lo"
@@ -89,6 +90,19 @@ func (v *Server) UpdateVisibility(ctx context.Context, request *proto.UpdateVisi
 	return &proto.UpdateVisibilityResponse{
 		Count: int32(rowsAffected),
 	}, nil
+}
+
+func (v *Server) UpdateUsage(ctx context.Context, request *proto.UpdateUsageRequest) (*proto.UpdateUsageResponse, error) {
+	id := lo.Map(request.GetId(), func(item uint64, _ int) uint {
+		return uint(item)
+	})
+	if rows, err := services.CountAttachmentUsage(id, int(request.GetDelta())); err != nil {
+		return nil, status.Error(codes.Internal, err.Error())
+	} else {
+		return &proto.UpdateUsageResponse{
+			Count: int32(rows),
+		}, nil
+	}
 }
 
 func (v *Server) DeleteAttachment(ctx context.Context, request *proto.DeleteAttachmentRequest) (*proto.DeleteAttachmentResponse, error) {
