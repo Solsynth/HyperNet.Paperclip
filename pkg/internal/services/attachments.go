@@ -239,6 +239,85 @@ func DeleteAttachment(item models.Attachment, txs ...*gorm.DB) error {
 	return nil
 }
 
+func DeleteAttachmentInBatch(items []models.Attachment, txs ...*gorm.DB) error {
+	if len(items) == 0 {
+		return nil
+	}
+
+	var tx *gorm.DB
+	if len(txs) == 0 {
+		tx = database.C.Begin()
+	} else {
+		tx = txs[0]
+	}
+
+	refIDs := []uint{}
+	for _, item := range items {
+		if item.RefID != nil {
+			refIDs = append(refIDs, *item.RefID)
+		}
+	}
+
+	if len(refIDs) > 0 {
+		var refTargets []models.Attachment
+		if err := tx.Where("id IN ?", refIDs).Find(&refTargets).Error; err == nil {
+			for i := range refTargets {
+				refTargets[i].RefCount--
+			}
+			if err := tx.Save(&refTargets).Error; err != nil {
+				tx.Rollback()
+				return fmt.Errorf("unable to update ref count: %v", err)
+			}
+		}
+	}
+
+	var subAttachments []models.Attachment
+	for _, item := range items {
+		if item.Thumbnail != nil {
+			subAttachments = append(subAttachments, *item.Thumbnail)
+		}
+		if item.Compressed != nil {
+			subAttachments = append(subAttachments, *item.Compressed)
+		}
+	}
+
+	if len(subAttachments) > 0 {
+		if err := DeleteAttachmentInBatch(subAttachments, tx); err != nil {
+			tx.Rollback()
+			return err
+		}
+	}
+
+	rids := make([]string, len(items))
+	for i, item := range items {
+		rids[i] = item.Rid
+	}
+
+	if err := tx.Where("rid IN ?", rids).Delete(&models.Attachment{}).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	cacheManager := cache.New[any](localCache.S)
+	marshal := marshaler.New(cacheManager)
+	contx := context.Background()
+	for _, rid := range rids {
+		_ = marshal.Delete(contx, GetAttachmentCacheKey(rid))
+	}
+
+	tx.Commit()
+
+	go func() {
+		for _, item := range items {
+			if item.RefCount == 0 {
+				fs.DeleteFile(item)
+			}
+		}
+	}()
+
+	return nil
+}
+
 func CountAttachmentUsage(id []uint, delta int) (int64, error) {
 	if tx := database.C.Model(&models.Attachment{}).
 		Where("id IN ?", id).

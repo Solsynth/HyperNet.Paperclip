@@ -1,24 +1,28 @@
 package services
 
 import (
-	database2 "git.solsynth.dev/hypernet/paperclip/pkg/internal/database"
 	"time"
+
+	"git.solsynth.dev/hypernet/paperclip/pkg/internal/database"
+	"git.solsynth.dev/hypernet/paperclip/pkg/internal/models"
 
 	"github.com/rs/zerolog/log"
 )
 
-func DoAutoDatabaseCleanup() {
-	deadline := time.Now().Add(60 * time.Minute)
-	log.Debug().Time("deadline", deadline).Msg("Now cleaning up entire database...")
+func DoUnusedAttachmentCleanup() {
+	deadline := time.Now().Add(-60 * time.Minute)
 
-	var count int64
-	for _, model := range database2.AutoMaintainRange {
-		tx := database2.C.Unscoped().Delete(model, "deleted_at >= ?", deadline)
-		if tx.Error != nil {
-			log.Error().Err(tx.Error).Msg("An error occurred when running auth context cleanup...")
-		}
-		count += tx.RowsAffected
+	var result []models.Attachment
+	if err := database.C.Where("created_at < ? AND used_count = 0", deadline).
+		Find(&result).Error; err != nil {
+		log.Error().Err(err).Msg("An error occurred when getting unused attachments...")
+		return
 	}
 
-	log.Debug().Int64("affected", count).Msg("Clean up entire database accomplished.")
+	if err := DeleteAttachmentInBatch(result); err != nil {
+		log.Error().Err(err).Msg("An error occurred when deleting unused attachments...")
+		return
+	}
+
+	log.Info().Int("count", len(result)).Msg("Deleted unused attachments...")
 }
