@@ -318,9 +318,8 @@ func DeleteAttachmentInBatch(items []models.Attachment, txs ...*gorm.DB) error {
 	return nil
 }
 
-func CountAttachmentUsage(id []uint, delta int) (int64, error) {
-	if tx := database.C.Model(&models.Attachment{}).
-		Where("id IN ?", id).
+func CountAttachmentUsage(tx *gorm.DB, delta int) (int64, error) {
+	if tx := tx.Model(&models.Attachment{}).
 		Update("used_count", gorm.Expr("used_count + ?", delta)); tx.Error != nil {
 		return tx.RowsAffected, tx.Error
 	} else {

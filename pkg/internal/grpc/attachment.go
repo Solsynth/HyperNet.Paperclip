@@ -93,10 +93,18 @@ func (v *Server) UpdateVisibility(ctx context.Context, request *proto.UpdateVisi
 }
 
 func (v *Server) UpdateUsage(ctx context.Context, request *proto.UpdateUsageRequest) (*proto.UpdateUsageResponse, error) {
-	id := lo.Map(request.GetId(), func(item uint64, _ int) uint {
-		return uint(item)
-	})
-	if rows, err := services.CountAttachmentUsage(id, int(request.GetDelta())); err != nil {
+	tx := database.C
+	if len(request.Id) == 0 && len(request.Rid) == 0 {
+		return nil, status.Error(codes.InvalidArgument, "you must provide at least one id or random id")
+	}
+	if len(request.Id) > 0 {
+		tx = tx.Where("id IN ?", request.Id)
+	}
+	if len(request.Rid) > 0 {
+		tx = tx.Where("rid IN ?", request.Rid)
+	}
+
+	if rows, err := services.CountAttachmentUsage(tx, int(request.GetDelta())); err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	} else {
 		return &proto.UpdateUsageResponse{
