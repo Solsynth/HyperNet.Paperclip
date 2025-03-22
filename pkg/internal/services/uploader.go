@@ -100,9 +100,12 @@ func ReUploadFile(meta models.Attachment, dst int, doNotUpdate ...bool) error {
 		}
 
 		_, err = client.FPutObject(context.Background(), destConfigured.Bucket, filepath.Join(destConfigured.Path, meta.Uuid), inDst, minio.PutObjectOptions{
-			ContentType:          meta.MimeType,
-			SendContentMd5:       false,
-			DisableContentSha256: true,
+			ContentType:           meta.MimeType,
+			SendContentMd5:        false,
+			DisableContentSha256:  true,
+			PartSize:              10 * 1024 * 1024,
+			ConcurrentStreamParts: true,
+			NumThreads:            4,
 		})
 		if err != nil {
 			return fmt.Errorf("unable to upload file to s3: %v", err)
