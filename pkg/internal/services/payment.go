@@ -63,6 +63,7 @@ func PlaceOrder(user uint, filesize int64, withDiscount bool) error {
 		PayerAccountId: lo.ToPtr(uint64(user)),
 		Amount:         amount,
 		Remark:         "File Uploading Fee",
+		Currency:       "normal",
 	})
 	if err != nil {
 		return err

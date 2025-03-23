@@ -39,8 +39,8 @@ git.solsynth.dev/hypernet/passport v0.0.0-20250315083747-32e91e26013c h1:XB8EBX3
 git.solsynth.dev/hypernet/passport v0.0.0-20250315083747-32e91e26013c/go.mod h1:k7MZQWYBpxlk3g9bx0HTh5C3m+MG/wr0hAiRM/VyAqs=
 git.solsynth.dev/hypernet/pusher v0.0.0-20250216145944-5fb769823a88 h1:2HEENe9KUrdaJeNBzx9lsuXQGyzWqCgnLTKQnr8xFr8=
 git.solsynth.dev/hypernet/pusher v0.0.0-20250216145944-5fb769823a88/go.mod h1:ildzMtLagNsLK0Rkw4Hgk2TrrwqZnjwJIUx0MNZwcDY=
-git.solsynth.dev/hypernet/wallet v0.0.0-20250129150034-87b94cdb5488 h1:/9Ol+PfDQFAYtHo0kk6sxqiEsZ6epb6yUEsZJxy14Mk=
-git.solsynth.dev/hypernet/wallet v0.0.0-20250129150034-87b94cdb5488/go.mod h1:jd1MTBI5NPHne22nq7nR7kyl4iYb9kV2A+tpXi7HOYY=
+git.solsynth.dev/hypernet/wallet v0.0.0-20250323095812-468cd655f886 h1:rVssXF8jZ64ctAfzlCgIgF22NCT9VAPAVxrwlcItx3s=
+git.solsynth.dev/hypernet/wallet v0.0.0-20250323095812-468cd655f886/go.mod h1:rmomNGQ6RBSp8TpZGA8tFr5M54AL2NADJ/1n0MfrIRM=
 github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03qcyfWMU=
 github.com/BurntSushi/xgb v0.0.0-20160522181843-27f122750802/go.mod h1:IVnqGOEym/WlBOVXweHU+Q+/VP0lqqI8lqeDx9IjBqo=
 github.com/alecthomas/template v0.0.0-20160405071501-a0175ee3bccc/go.mod h1:LOuyumcjzFXgccqObfd/Ljyb9UuFJ6TxHnclSeseNhc=

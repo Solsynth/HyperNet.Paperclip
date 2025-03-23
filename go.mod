@@ -5,7 +5,7 @@ go 1.23.2
 require (
 	git.solsynth.dev/hypernet/nexus v0.0.0-20250301065153-8ac88413e0e1
 	git.solsynth.dev/hypernet/passport v0.0.0-20250315083747-32e91e26013c
-	git.solsynth.dev/hypernet/wallet v0.0.0-20250129150034-87b94cdb5488
+	git.solsynth.dev/hypernet/wallet v0.0.0-20250323095812-468cd655f886
 	github.com/barasher/go-exiftool v1.10.0
 	github.com/dgraph-io/ristretto v0.2.0
 	github.com/eko/gocache/lib/v4 v4.1.6
