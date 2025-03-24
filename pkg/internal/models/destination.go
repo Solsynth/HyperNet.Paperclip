@@ -31,4 +31,5 @@ type S3Destination struct {
 	AccessBaseURL string `json:"access_baseurl"`
 	EnableSSL     bool   `json:"enable_ssl"`
 	EnableSigned  bool   `json:"enable_signed"`
+	BucketLookup  int    `json:"bucket_lookup"`
 }

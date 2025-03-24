@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 
+	pkg "git.solsynth.dev/hypernet/paperclip/pkg/internal"
 	"git.solsynth.dev/hypernet/paperclip/pkg/internal/models"
 	jsoniter "github.com/json-iterator/go"
 	"github.com/minio/minio-go/v7"
@@ -31,9 +32,11 @@ func DownloadFileToLocal(meta models.Attachment, dst int) (string, error) {
 		_ = jsoniter.Unmarshal(rawDest, &destConfigured)
 
 		client, err := minio.New(destConfigured.Endpoint, &minio.Options{
-			Creds:  credentials.NewStaticV4(destConfigured.SecretID, destConfigured.SecretKey, ""),
-			Secure: destConfigured.EnableSSL,
+			Creds:        credentials.NewStaticV4(destConfigured.SecretID, destConfigured.SecretKey, ""),
+			Secure:       destConfigured.EnableSSL,
+			BucketLookup: minio.BucketLookupType(destConfigured.BucketLookup),
 		})
+		client.SetAppInfo("HyperNet.Paperclip", pkg.AppVersion)
 		if err != nil {
 			return "", fmt.Errorf("unable to configure s3 client: %v", err)
 		}

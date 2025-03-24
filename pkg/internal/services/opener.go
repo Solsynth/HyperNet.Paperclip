@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 	"time"
 
+	pkg "git.solsynth.dev/hypernet/paperclip/pkg/internal"
 	localCache "git.solsynth.dev/hypernet/paperclip/pkg/internal/cache"
 	"git.solsynth.dev/hypernet/paperclip/pkg/internal/database"
 	"git.solsynth.dev/hypernet/paperclip/pkg/internal/models"
@@ -118,9 +119,11 @@ func OpenAttachmentByRID(rid string, region ...string) (url string, mimetype str
 		if destConfigured.EnableSigned {
 			var client *minio.Client
 			client, err = minio.New(destConfigured.Endpoint, &minio.Options{
-				Creds:  credentials.NewStaticV4(destConfigured.SecretID, destConfigured.SecretKey, ""),
-				Secure: destConfigured.EnableSSL,
+				Creds:        credentials.NewStaticV4(destConfigured.SecretID, destConfigured.SecretKey, ""),
+				Secure:       destConfigured.EnableSSL,
+				BucketLookup: minio.BucketLookupType(destConfigured.BucketLookup),
 			})
+			client.SetAppInfo("HyperNet.Paperclip", pkg.AppVersion)
 			if err != nil {
 				return
 			}
