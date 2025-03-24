@@ -5,6 +5,8 @@ grpc_bind = "0.0.0.0:7004"
 
 nexus_addr = "localhost:7001"
 
+preferred_destination = 1
+
 [workers]
 files_deletion = 4
 files_analyze = 4

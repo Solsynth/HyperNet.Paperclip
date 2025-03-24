@@ -291,7 +291,11 @@ func AnalyzeAttachment(file models.Attachment) error {
 	if !linked {
 		go func() {
 			start = time.Now()
-			if err := ReUploadFile(file, 1); err != nil {
+			preferred := viper.GetInt("preferred_destination")
+			if preferred == 0 {
+				preferred = 1
+			}
+			if err := ReUploadFile(file, preferred); err != nil {
 				log.Warn().Any("file", file).Err(err).Msg("Unable to move file to permanet storage...")
 			} else {
 				// Recycle the temporary file
