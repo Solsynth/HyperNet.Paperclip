@@ -9,7 +9,6 @@ import (
 	"path/filepath"
 	"time"
 
-	pkg "git.solsynth.dev/hypernet/paperclip/pkg/internal"
 	localCache "git.solsynth.dev/hypernet/paperclip/pkg/internal/cache"
 	"git.solsynth.dev/hypernet/paperclip/pkg/internal/database"
 	"git.solsynth.dev/hypernet/paperclip/pkg/internal/models"
@@ -18,7 +17,6 @@ import (
 	"github.com/eko/gocache/lib/v4/store"
 	jsoniter "github.com/json-iterator/go"
 	"github.com/minio/minio-go/v7"
-	"github.com/minio/minio-go/v7/pkg/credentials"
 	"github.com/samber/lo"
 )
 
@@ -118,12 +116,7 @@ func OpenAttachmentByRID(rid string, region ...string) (url string, mimetype str
 		_ = jsoniter.Unmarshal(rawDest, &destConfigured)
 		if destConfigured.EnableSigned {
 			var client *minio.Client
-			client, err = minio.New(destConfigured.Endpoint, &minio.Options{
-				Creds:        credentials.NewStaticV4(destConfigured.SecretID, destConfigured.SecretKey, ""),
-				Secure:       destConfigured.EnableSSL,
-				BucketLookup: minio.BucketLookupType(destConfigured.BucketLookup),
-			})
-			client.SetAppInfo("HyperNet.Paperclip", pkg.AppVersion)
+			client, err = destConfigured.GetClient()
 			if err != nil {
 				return
 			}

@@ -7,14 +7,12 @@ import (
 	"path/filepath"
 	"time"
 
-	pkg "git.solsynth.dev/hypernet/paperclip/pkg/internal"
 	"git.solsynth.dev/hypernet/paperclip/pkg/internal/database"
 	"github.com/samber/lo"
 
 	"git.solsynth.dev/hypernet/paperclip/pkg/internal/models"
 	jsoniter "github.com/json-iterator/go"
 	"github.com/minio/minio-go/v7"
-	"github.com/minio/minio-go/v7/pkg/credentials"
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/viper"
 )
@@ -121,12 +119,7 @@ func DeleteFileFromLocal(config models.LocalDestination, uuid string) error {
 }
 
 func DeleteFileFromS3(config models.S3Destination, uuid string) error {
-	client, err := minio.New(config.Endpoint, &minio.Options{
-		Creds:        credentials.NewStaticV4(config.SecretID, config.SecretKey, ""),
-		Secure:       config.EnableSSL,
-		BucketLookup: minio.BucketLookupType(config.BucketLookup),
-	})
-	client.SetAppInfo("HyperNet.Paperclip", pkg.AppVersion)
+	client, err := config.GetClient()
 	if err != nil {
 		return fmt.Errorf("unable to configure s3 client: %v", err)
 	}

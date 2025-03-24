@@ -1,5 +1,11 @@
 package models
 
+import (
+	pkg "git.solsynth.dev/hypernet/paperclip/pkg/internal"
+	"github.com/minio/minio-go/v7"
+	"github.com/minio/minio-go/v7/pkg/credentials"
+)
+
 const (
 	DestinationTypeLocal = "local"
 	DestinationTypeS3    = "s3"
@@ -32,4 +38,16 @@ type S3Destination struct {
 	EnableSSL     bool   `json:"enable_ssl"`
 	EnableSigned  bool   `json:"enable_signed"`
 	BucketLookup  int    `json:"bucket_lookup"`
+}
+
+func (v S3Destination) GetClient() (*minio.Client, error) {
+	client, err := minio.New(v.Endpoint, &minio.Options{
+		Creds:        credentials.NewStaticV4(v.SecretID, v.SecretKey, ""),
+		Secure:       v.EnableSSL,
+		BucketLookup: minio.BucketLookupType(v.BucketLookup),
+	})
+	if err == nil {
+		client.SetAppInfo("HyperNet.Paperclip", pkg.AppVersion)
+	}
+	return client, err
 }

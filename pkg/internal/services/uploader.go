@@ -8,14 +8,12 @@ import (
 	"os"
 	"path/filepath"
 
-	pkg "git.solsynth.dev/hypernet/paperclip/pkg/internal"
 	"git.solsynth.dev/hypernet/paperclip/pkg/internal/database"
 	"git.solsynth.dev/hypernet/paperclip/pkg/internal/fs"
 	"git.solsynth.dev/hypernet/paperclip/pkg/internal/models"
 	"github.com/gofiber/fiber/v2"
 	jsoniter "github.com/json-iterator/go"
 	"github.com/minio/minio-go/v7"
-	"github.com/minio/minio-go/v7/pkg/credentials"
 	"github.com/spf13/viper"
 )
 
@@ -92,12 +90,7 @@ func ReUploadFile(meta models.Attachment, dst int, doNotUpdate ...bool) error {
 		var destConfigured models.S3Destination
 		_ = jsoniter.Unmarshal(rawDest, &destConfigured)
 
-		client, err := minio.New(destConfigured.Endpoint, &minio.Options{
-			Creds:        credentials.NewStaticV4(destConfigured.SecretID, destConfigured.SecretKey, ""),
-			Secure:       destConfigured.EnableSSL,
-			BucketLookup: minio.BucketLookupType(destConfigured.BucketLookup),
-		})
-		client.SetAppInfo("HyperNet.Paperclip", pkg.AppVersion)
+		client, err := destConfigured.GetClient()
 		if err != nil {
 			return fmt.Errorf("unable to configure s3 client: %v", err)
 		}
