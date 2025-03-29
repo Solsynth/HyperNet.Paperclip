@@ -91,7 +91,6 @@ func CacheAttachmentFragment(item models.AttachmentFragment) {
 		KgAttachmentFragmentCache(item.Rid),
 		item,
 		60*time.Minute,
-		cachekit.FKey("attachment", item.Rid),
 	)
 }
 

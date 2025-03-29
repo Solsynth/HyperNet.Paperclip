@@ -156,6 +156,5 @@ func CacheOpenAttachment(item *openAttachmentResult) {
 		KgAttachmentCache(item.Attachment.Rid),
 		*item,
 		60*time.Minute,
-		cachekit.FKey("attachment", item.Attachment.Rid),
 	)
 }
