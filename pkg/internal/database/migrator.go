@@ -1,7 +1,7 @@
 package database
 
 import (
-	"git.solsynth.dev/hypernet/paperclip/pkg/internal/models"
+	"git.solsynth.dev/hypernet/paperclip/pkg/filekit/models"
 	"gorm.io/gorm"
 )
 

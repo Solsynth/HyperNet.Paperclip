@@ -5,7 +5,7 @@ import (
 	"strings"
 
 	"git.solsynth.dev/hypernet/paperclip/pkg/internal/database"
-	"git.solsynth.dev/hypernet/paperclip/pkg/internal/models"
+	"git.solsynth.dev/hypernet/paperclip/pkg/filekit/models"
 )
 
 func SetAttachmentAsThumbnail(item models.Attachment) (models.Attachment, error) {

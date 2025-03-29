@@ -15,7 +15,7 @@ import (
 	"git.solsynth.dev/hypernet/paperclip/pkg/internal/fs"
 	"git.solsynth.dev/hypernet/paperclip/pkg/internal/gap"
 
-	"git.solsynth.dev/hypernet/paperclip/pkg/internal/models"
+	"git.solsynth.dev/hypernet/paperclip/pkg/filekit/models"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 )

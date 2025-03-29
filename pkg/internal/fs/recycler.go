@@ -10,7 +10,7 @@ import (
 	"git.solsynth.dev/hypernet/paperclip/pkg/internal/database"
 	"github.com/samber/lo"
 
-	"git.solsynth.dev/hypernet/paperclip/pkg/internal/models"
+	"git.solsynth.dev/hypernet/paperclip/pkg/filekit/models"
 	jsoniter "github.com/json-iterator/go"
 	"github.com/minio/minio-go/v7"
 	"github.com/rs/zerolog/log"
