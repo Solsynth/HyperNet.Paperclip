@@ -12,7 +12,6 @@ import (
 	"git.solsynth.dev/hypernet/paperclip/pkg/internal/gap"
 	"github.com/fatih/color"
 
-	"git.solsynth.dev/hypernet/paperclip/pkg/internal/cache"
 	"git.solsynth.dev/hypernet/paperclip/pkg/internal/database"
 	"git.solsynth.dev/hypernet/paperclip/pkg/internal/grpc"
 
@@ -66,11 +65,6 @@ func main() {
 		log.Fatal().Err(err).Msg("An error occurred when connect to database.")
 	} else if err := database.RunMigration(database.C); err != nil {
 		log.Fatal().Err(err).Msg("An error occurred when running database auto migration.")
-	}
-
-	// Initialize cache
-	if err := cache.NewStore(); err != nil {
-		log.Fatal().Err(err).Msg("An error occurred when initializing cache.")
 	}
 
 	// Set up some workers
