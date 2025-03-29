@@ -3,6 +3,7 @@ package grpc
 import (
 	"context"
 
+	"git.solsynth.dev/hypernet/nexus/pkg/nex"
 	"git.solsynth.dev/hypernet/paperclip/pkg/internal/database"
 	"git.solsynth.dev/hypernet/paperclip/pkg/internal/models"
 	"git.solsynth.dev/hypernet/paperclip/pkg/internal/services"
@@ -33,7 +34,7 @@ func (v *Server) GetAttachment(ctx context.Context, request *proto.GetAttachment
 	}
 
 	return &proto.GetAttachmentResponse{
-		Attachment: lo.ToPtr(attachment).ToAttachmentInfo(),
+		Attachment: nex.EncodeMap(attachment),
 	}, nil
 }
 
@@ -56,8 +57,8 @@ func (v *Server) ListAttachment(ctx context.Context, request *proto.ListAttachme
 	}
 
 	return &proto.ListAttachmentResponse{
-		Attachments: lo.Map(attachments, func(v models.Attachment, _ int) *proto.AttachmentInfo {
-			return v.ToAttachmentInfo()
+		Attachments: lo.Map(attachments, func(v models.Attachment, _ int) []byte {
+			return nex.EncodeMap(v)
 		}),
 	}, nil
 }

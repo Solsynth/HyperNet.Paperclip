@@ -12,17 +12,6 @@ service AttachmentService {
   rpc DeleteAttachment(DeleteAttachmentRequest) returns (DeleteAttachmentResponse) {}
 }
 
-message AttachmentInfo {
-    string id = 1;
-    string rid = 2;
-    string name = 3;
-    string type = 4;
-    string size = 5;
-    string hash = 6;
-    string mime = 7;
-    bool is_indexable = 8;
-}
-
 message GetAttachmentRequest {
   optional uint64 id = 1;
   optional string rid = 2;
@@ -30,7 +19,7 @@ message GetAttachmentRequest {
 }
 
 message GetAttachmentResponse {
-  optional AttachmentInfo attachment = 1;
+  optional bytes attachment = 1;
 }
 
 message ListAttachmentRequest {
@@ -40,7 +29,7 @@ message ListAttachmentRequest {
 }
 
 message ListAttachmentResponse {
-  repeated AttachmentInfo attachments = 1;
+  repeated bytes attachments = 1;
 }
 
 message UpdateVisibilityRequest {
