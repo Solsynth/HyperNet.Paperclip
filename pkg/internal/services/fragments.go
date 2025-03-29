@@ -1,7 +1,6 @@
 package services
 
 import (
-	"context"
 	"errors"
 	"fmt"
 	"math"
@@ -11,13 +10,11 @@ import (
 	"path/filepath"
 	"time"
 
+	"git.solsynth.dev/hypernet/nexus/pkg/nex/cachekit"
 	"git.solsynth.dev/hypernet/nexus/pkg/nex/sec"
-	localCache "git.solsynth.dev/hypernet/paperclip/pkg/internal/cache"
 	"git.solsynth.dev/hypernet/paperclip/pkg/internal/database"
+	"git.solsynth.dev/hypernet/paperclip/pkg/internal/gap"
 	"git.solsynth.dev/hypernet/paperclip/pkg/internal/models"
-	"github.com/eko/gocache/lib/v4/cache"
-	"github.com/eko/gocache/lib/v4/marshaler"
-	"github.com/eko/gocache/lib/v4/store"
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
 	jsoniter "github.com/json-iterator/go"
@@ -26,8 +23,8 @@ import (
 	"gorm.io/gorm"
 )
 
-func GetAttachmentFragmentCacheKey(rid string) any {
-	return fmt.Sprintf("attachment-fragment#%s", rid)
+func KgAttachmentFragmentCache(rid string) string {
+	return cachekit.FKey("attachment-fragment", rid)
 }
 
 func NewAttachmentFragment(tx *gorm.DB, user *sec.UserInfo, fragment models.AttachmentFragment) (models.AttachmentFragment, error) {
@@ -69,16 +66,11 @@ func NewAttachmentFragment(tx *gorm.DB, user *sec.UserInfo, fragment models.Atta
 }
 
 func GetFragmentByRID(rid string) (models.AttachmentFragment, error) {
-	cacheManager := cache.New[any](localCache.S)
-	marshal := marshaler.New(cacheManager)
-	contx := context.Background()
-
-	if val, err := marshal.Get(
-		contx,
-		GetAttachmentFragmentCacheKey(rid),
-		new(models.AttachmentFragment),
+	if val, err := cachekit.Get[models.AttachmentFragment](
+		gap.Ca,
+		KgAttachmentFragmentCache(rid),
 	); err == nil {
-		return *val.(*models.AttachmentFragment), nil
+		return val, nil
 	}
 
 	var attachment models.AttachmentFragment
@@ -94,16 +86,12 @@ func GetFragmentByRID(rid string) (models.AttachmentFragment, error) {
 }
 
 func CacheAttachmentFragment(item models.AttachmentFragment) {
-	cacheManager := cache.New[any](localCache.S)
-	marshal := marshaler.New(cacheManager)
-	contx := context.Background()
-
-	_ = marshal.Set(
-		contx,
-		GetAttachmentFragmentCacheKey(item.Rid),
+	cachekit.Set[models.AttachmentFragment](
+		gap.Ca,
+		KgAttachmentFragmentCache(item.Rid),
 		item,
-		store.WithExpiration(60*time.Minute),
-		store.WithTags([]string{"attachment-fragment", fmt.Sprintf("user#%d", item.AccountID)}),
+		60*time.Minute,
+		cachekit.FKey("attachment", item.Rid),
 	)
 }
 

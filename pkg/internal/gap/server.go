@@ -2,16 +2,22 @@ package gap
 
 import (
 	"fmt"
+	"strings"
+	"time"
+
 	"git.solsynth.dev/hypernet/nexus/pkg/nex"
+	"git.solsynth.dev/hypernet/nexus/pkg/nex/cachekit"
 	"git.solsynth.dev/hypernet/nexus/pkg/proto"
 	"github.com/rs/zerolog/log"
 	"github.com/samber/lo"
-	"strings"
 
 	"github.com/spf13/viper"
 )
 
-var Nx *nex.Conn
+var (
+	Nx *nex.Conn
+	Ca *cachekit.Conn
+)
 
 func InitializeToNexus() error {
 	grpcBind := strings.SplitN(viper.GetString("grpc_bind"), ":", 2)
@@ -37,6 +43,10 @@ func InitializeToNexus() error {
 				log.Error().Err(err).Msg("An error occurred while registering service...")
 			}
 		}()
+	}
+
+	if Ca, err = cachekit.NewConn(Nx, 3*time.Second); err != nil {
+		return fmt.Errorf("failed to create cachekit connection: %v", err)
 	}
 
 	return err

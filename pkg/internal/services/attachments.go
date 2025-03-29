@@ -1,7 +1,6 @@
 package services
 
 import (
-	"context"
 	"fmt"
 	"mime"
 	"mime/multipart"
@@ -9,25 +8,20 @@ import (
 	"path/filepath"
 	"time"
 
+	"git.solsynth.dev/hypernet/nexus/pkg/nex/cachekit"
 	"git.solsynth.dev/hypernet/nexus/pkg/nex/sec"
 
-	"github.com/eko/gocache/lib/v4/cache"
-	"github.com/eko/gocache/lib/v4/marshaler"
-	"github.com/eko/gocache/lib/v4/store"
-
-	localCache "git.solsynth.dev/hypernet/paperclip/pkg/internal/cache"
 	"git.solsynth.dev/hypernet/paperclip/pkg/internal/database"
 	"git.solsynth.dev/hypernet/paperclip/pkg/internal/fs"
+	"git.solsynth.dev/hypernet/paperclip/pkg/internal/gap"
 
 	"git.solsynth.dev/hypernet/paperclip/pkg/internal/models"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
-func GetAttachmentCacheKey(rid string) any {
-	// Reminder: when you update this, update it in models/attachments too
-	// It cannot be imported here due to cycle import
-	return fmt.Sprintf("attachment#%s", rid)
+func KgAttachmentCache(rid string) string {
+	return cachekit.FKey(cachekit.DAAttachment, rid)
 }
 
 func GetAttachmentByID(id uint) (models.Attachment, error) {
@@ -48,16 +42,11 @@ func GetAttachmentByID(id uint) (models.Attachment, error) {
 }
 
 func GetAttachmentByRID(rid string) (models.Attachment, error) {
-	cacheManager := cache.New[any](localCache.S)
-	marshal := marshaler.New(cacheManager)
-	contx := context.Background()
-
-	if val, err := marshal.Get(
-		contx,
-		GetAttachmentCacheKey(rid),
-		new(models.Attachment),
+	if val, err := cachekit.Get[models.Attachment](
+		gap.Ca,
+		KgAttachmentCache(rid),
 	); err == nil {
-		return *val.(*models.Attachment), nil
+		return val, nil
 	}
 
 	var attachment models.Attachment
@@ -88,31 +77,22 @@ func GetAttachmentByHash(hash string) (models.Attachment, error) {
 }
 
 func GetAttachmentCache(rid string) (models.Attachment, bool) {
-	cacheManager := cache.New[any](localCache.S)
-	marshal := marshaler.New(cacheManager)
-	contx := context.Background()
-
-	if val, err := marshal.Get(
-		contx,
-		GetAttachmentCacheKey(rid),
-		new(models.Attachment),
+	if val, err := cachekit.Get[models.Attachment](
+		gap.Ca,
+		KgAttachmentCache(rid),
 	); err == nil {
-		return *val.(*models.Attachment), true
+		return val, true
 	}
 	return models.Attachment{}, false
 }
 
 func CacheAttachment(item models.Attachment) {
-	cacheManager := cache.New[any](localCache.S)
-	marshal := marshaler.New(cacheManager)
-	ctx := context.Background()
-
-	_ = marshal.Set(
-		ctx,
-		GetAttachmentCacheKey(item.Rid),
+	cachekit.Set[models.Attachment](
+		gap.Ca,
+		KgAttachmentCache(item.Rid),
 		item,
-		store.WithExpiration(60*time.Minute),
-		store.WithTags([]string{"attachment", fmt.Sprintf("user#%d", item.AccountID)}),
+		60*time.Minute,
+		cachekit.FKey("attachment", item.Rid),
 	)
 }
 
@@ -224,10 +204,7 @@ func DeleteAttachment(item models.Attachment, txs ...*gorm.DB) error {
 		tx.Rollback()
 		return err
 	} else {
-		cacheManager := cache.New[any](localCache.S)
-		marshal := marshaler.New(cacheManager)
-		contx := context.Background()
-		_ = marshal.Delete(contx, GetAttachmentCacheKey(item.Rid))
+		cachekit.Delete(gap.Ca, KgAttachmentCache(item.Rid))
 	}
 
 	tx.Commit()
@@ -298,11 +275,8 @@ func DeleteAttachmentInBatch(items []models.Attachment, txs ...*gorm.DB) error {
 		return err
 	}
 
-	cacheManager := cache.New[any](localCache.S)
-	marshal := marshaler.New(cacheManager)
-	contx := context.Background()
 	for _, rid := range rids {
-		_ = marshal.Delete(contx, GetAttachmentCacheKey(rid))
+		cachekit.Delete(gap.Ca, KgAttachmentCache(rid))
 	}
 
 	tx.Commit()

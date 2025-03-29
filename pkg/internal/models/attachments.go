@@ -1,18 +1,15 @@
 package models
 
 import (
-	"context"
-	"fmt"
 	"strconv"
 	"time"
 
 	"git.solsynth.dev/hypernet/paperclip/pkg/proto"
 
+	"git.solsynth.dev/hypernet/nexus/pkg/nex/cachekit"
 	"git.solsynth.dev/hypernet/nexus/pkg/nex/cruda"
-	"github.com/eko/gocache/lib/v4/cache"
-	"github.com/eko/gocache/lib/v4/marshaler"
 
-	localCache "git.solsynth.dev/hypernet/paperclip/pkg/internal/cache"
+	"git.solsynth.dev/hypernet/paperclip/pkg/internal/gap"
 
 	"gorm.io/datatypes"
 	"gorm.io/gorm"
@@ -100,18 +97,7 @@ func (v *Attachment) ToAttachmentInfo() *proto.AttachmentInfo {
 }
 
 func (v *Attachment) AfterUpdate(tx *gorm.DB) error {
-	cacheManager := cache.New[any](localCache.S)
-	marshal := marshaler.New(cacheManager)
-	ctx := context.Background()
-
-	_ = marshal.Delete(
-		ctx,
-		fmt.Sprintf("attachment#%s", v.Rid),
-	)
-	_ = marshal.Delete(
-		ctx,
-		fmt.Sprintf("attachment-open#%s", v.Rid),
-	)
+	cachekit.FKey(cachekit.DAAttachment, v.Rid)
 
 	return nil
 }
@@ -146,13 +132,9 @@ type AttachmentFragment struct {
 }
 
 func (v *AttachmentFragment) AfterUpdate(tx *gorm.DB) error {
-	cacheManager := cache.New[any](localCache.S)
-	marshal := marshaler.New(cacheManager)
-	ctx := context.Background()
-
-	_ = marshal.Delete(
-		ctx,
-		fmt.Sprintf("attachment-fragment#%s", v.Rid),
+	cachekit.Delete(
+		gap.Ca,
+		cachekit.FKey("attachment-fragment", v.Rid),
 	)
 
 	return nil

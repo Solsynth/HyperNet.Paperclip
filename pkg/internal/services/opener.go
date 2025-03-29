@@ -9,12 +9,10 @@ import (
 	"path/filepath"
 	"time"
 
-	localCache "git.solsynth.dev/hypernet/paperclip/pkg/internal/cache"
+	"git.solsynth.dev/hypernet/nexus/pkg/nex/cachekit"
 	"git.solsynth.dev/hypernet/paperclip/pkg/internal/database"
+	"git.solsynth.dev/hypernet/paperclip/pkg/internal/gap"
 	"git.solsynth.dev/hypernet/paperclip/pkg/internal/models"
-	"github.com/eko/gocache/lib/v4/cache"
-	"github.com/eko/gocache/lib/v4/marshaler"
-	"github.com/eko/gocache/lib/v4/store"
 	jsoniter "github.com/json-iterator/go"
 	"github.com/minio/minio-go/v7"
 	"github.com/samber/lo"
@@ -25,22 +23,17 @@ type openAttachmentResult struct {
 	Boosts     []models.AttachmentBoost `json:"boost"`
 }
 
-func GetAttachmentOpenCacheKey(rid string) any {
+func KgAttachmentOpenCache(rid string) string {
 	return fmt.Sprintf("attachment-open#%s", rid)
 }
 
 func OpenAttachmentByRID(rid string, region ...string) (url string, mimetype string, err error) {
-	cacheManager := cache.New[any](localCache.S)
-	marshal := marshaler.New(cacheManager)
-	contx := context.Background()
-
 	var result *openAttachmentResult
-	if val, err := marshal.Get(
-		contx,
-		GetAttachmentOpenCacheKey(rid),
-		new(openAttachmentResult),
+	if val, err := cachekit.Get[openAttachmentResult](
+		gap.Ca,
+		KgAttachmentOpenCache(rid),
 	); err == nil {
-		result = val.(*openAttachmentResult)
+		result = &val
 	}
 
 	if result == nil {
@@ -158,15 +151,11 @@ func CacheOpenAttachment(item *openAttachmentResult) {
 		return
 	}
 
-	cacheManager := cache.New[any](localCache.S)
-	marshal := marshaler.New(cacheManager)
-	contx := context.Background()
-
-	_ = marshal.Set(
-		contx,
-		GetAttachmentCacheKey(item.Attachment.Rid),
+	cachekit.Set[openAttachmentResult](
+		gap.Ca,
+		KgAttachmentCache(item.Attachment.Rid),
 		*item,
-		store.WithExpiration(60*time.Minute),
-		store.WithTags([]string{"attachment-open", fmt.Sprintf("user#%s", item.Attachment.Rid)}),
+		60*time.Minute,
+		cachekit.FKey("attachment", item.Attachment.Rid),
 	)
 }
