@@ -27,8 +27,9 @@ path = "uploads/permanent"
 access_baseurl = "http://192.168.50.133:8004"
 image_proxy_baseurl = "https://io.sn.solsynth.dev"
 
-[imageproxy]
-size = 1024
+[traffic]
+maximum_size = 20971520
+minimum_size = 1048576
 
 [security]
 internal_public_key = "keys/internal_public_key.pem"

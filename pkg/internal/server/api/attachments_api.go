@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/samber/lo"
 	"github.com/spf13/viper"
 
 	"git.solsynth.dev/hypernet/nexus/pkg/nex/sec"
@@ -40,10 +41,21 @@ func openAttachment(c *fiber.Ctx) error {
 
 	var err error
 	var url, mimetype string
+	var filesize int64
+	size := lo.Ternary(c.QueryBool("preview", true), 1024, -1)
 	if len(region) > 0 {
-		url, mimetype, err = services.OpenAttachmentByRID(id, c.QueryBool("preview", true), region)
+		url, filesize, mimetype, err = services.OpenAttachmentByRID(id, size, region)
 	} else {
-		url, mimetype, err = services.OpenAttachmentByRID(id, c.QueryBool("preview", true))
+		url, filesize, mimetype, err = services.OpenAttachmentByRID(id, size)
+	}
+
+	authenticated := false
+	if err := sec.EnsureAuthenticated(c); err == nil {
+		authenticated = true
+	}
+
+	if filesize > viper.GetInt64("traffic.maximum_size") && !authenticated {
+		return fiber.NewError(fiber.StatusForbidden, "file is too large, you need authorized to access")
 	}
 
 	if err != nil {

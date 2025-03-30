@@ -43,9 +43,9 @@ func openStickerByAlias(c *fiber.Ctx) error {
 
 	var url, mimetype string
 	if len(region) > 0 {
-		url, mimetype, err = services.OpenAttachmentByRID(sticker.Attachment.Rid, true, region)
+		url, _, mimetype, err = services.OpenAttachmentByRID(sticker.Attachment.Rid, 256, region)
 	} else {
-		url, mimetype, err = services.OpenAttachmentByRID(sticker.Attachment.Rid, true)
+		url, _, mimetype, err = services.OpenAttachmentByRID(sticker.Attachment.Rid, 288)
 	}
 
 	if err != nil {

@@ -7,6 +7,7 @@ import (
 	"math/rand/v2"
 	nurl "net/url"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"git.solsynth.dev/hypernet/nexus/pkg/nex/cachekit"
@@ -28,7 +29,7 @@ func KgAttachmentOpenCache(rid string) string {
 	return fmt.Sprintf("attachment-open#%s", rid)
 }
 
-func OpenAttachmentByRID(rid string, preview bool, region ...string) (url string, mimetype string, err error) {
+func OpenAttachmentByRID(rid string, preferredSize int, region ...string) (url string, filesize int64, mimetype string, err error) {
 	var result *openAttachmentResult
 	if val, err := cachekit.Get[openAttachmentResult](
 		gap.Ca,
@@ -64,6 +65,8 @@ func OpenAttachmentByRID(rid string, preview bool, region ...string) (url string
 	if len(result.Attachment.MimeType) > 0 {
 		mimetype = result.Attachment.MimeType
 	}
+
+	filesize = result.Attachment.Size
 
 	var dest models.BaseDestination
 	var rawDest []byte
@@ -138,15 +141,17 @@ func OpenAttachmentByRID(rid string, preview bool, region ...string) (url string
 				nurl.QueryEscape(filepath.Join(destConfigured.Path, result.Attachment.Uuid)),
 			)
 		}
-		if len(destConfigured.ImageProxyURL) > 0 && preview {
-			size := viper.GetInt("imageproxy.size")
-			url = fmt.Sprintf(
-				"%s/%dx%d,fit/%s",
-				destConfigured.ImageProxyURL,
-				size,
-				size,
-				url,
-			)
+		if strings.HasPrefix(mimetype, "image") && filesize >= viper.GetInt64("traffic.minimum_size") {
+			if len(destConfigured.ImageProxyURL) > 0 && preferredSize > 0 {
+				url = fmt.Sprintf(
+					"%s/%dx%d,fit/%s",
+					destConfigured.ImageProxyURL,
+					preferredSize,
+					preferredSize,
+					url,
+				)
+				filesize = int64(preferredSize * preferredSize)
+			}
 		}
 		return
 	default:
