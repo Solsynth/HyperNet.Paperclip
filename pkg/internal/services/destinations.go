@@ -23,7 +23,6 @@ var (
 func BuildDestinationMapping() {
 	count := len(cast.ToSlice(viper.Get("destinations")))
 	for idx := 0; idx < count; idx++ {
-		fmt.Println(idx)
 		destMap := viper.GetStringMap(fmt.Sprintf("destinations.%d", idx))
 		var parsed models.BaseDestination
 		raw, _ := jsoniter.Marshal(destMap)

@@ -7,7 +7,6 @@ import (
 	"math/rand/v2"
 	nurl "net/url"
 	"path/filepath"
-	"strings"
 	"time"
 
 	"git.solsynth.dev/hypernet/nexus/pkg/nex/cachekit"
@@ -109,7 +108,13 @@ func OpenAttachmentByRID(rid string, preview bool, region ...string) (url string
 	case models.DestinationTypeS3:
 		var destConfigured models.S3Destination
 		_ = jsoniter.Unmarshal(rawDest, &destConfigured)
-		if destConfigured.EnableSigned {
+		if len(destConfigured.AccessBaseURL) > 0 {
+			url = fmt.Sprintf(
+				"%s/%s",
+				destConfigured.AccessBaseURL,
+				nurl.QueryEscape(filepath.Join(destConfigured.Path, result.Attachment.Uuid)),
+			)
+		} else if destConfigured.EnableSigned {
 			var client *minio.Client
 			client, err = destConfigured.GetClient()
 			if err != nil {
@@ -123,14 +128,6 @@ func OpenAttachmentByRID(rid string, preview bool, region ...string) (url string
 			}
 
 			url = uri.String()
-			return
-		}
-		if len(destConfigured.AccessBaseURL) > 0 {
-			url = fmt.Sprintf(
-				"%s/%s",
-				destConfigured.AccessBaseURL,
-				nurl.QueryEscape(filepath.Join(destConfigured.Path, result.Attachment.Uuid)),
-			)
 		} else {
 			protocol := lo.Ternary(destConfigured.EnableSSL, "https", "http")
 			url = fmt.Sprintf(
@@ -148,7 +145,7 @@ func OpenAttachmentByRID(rid string, preview bool, region ...string) (url string
 				destConfigured.ImageProxyURL,
 				size,
 				size,
-				strings.Replace(url, destConfigured.AccessBaseURL, "", 1),
+				url,
 			)
 		}
 		return
