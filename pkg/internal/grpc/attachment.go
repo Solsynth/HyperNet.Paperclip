@@ -4,8 +4,8 @@ import (
 	"context"
 
 	"git.solsynth.dev/hypernet/nexus/pkg/nex"
-	"git.solsynth.dev/hypernet/paperclip/pkg/internal/database"
 	"git.solsynth.dev/hypernet/paperclip/pkg/filekit/models"
+	"git.solsynth.dev/hypernet/paperclip/pkg/internal/database"
 	"git.solsynth.dev/hypernet/paperclip/pkg/internal/services"
 	"git.solsynth.dev/hypernet/paperclip/pkg/proto"
 	"github.com/rs/zerolog/log"
@@ -33,8 +33,13 @@ func (v *Server) GetAttachment(ctx context.Context, request *proto.GetAttachment
 		return nil, status.Error(codes.NotFound, "attachment not found")
 	}
 
+	out, err := services.CompleteAttachmentMeta(attachment)
+	if err != nil {
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+
 	return &proto.GetAttachmentResponse{
-		Attachment: nex.EncodeMap(attachment),
+		Attachment: nex.EncodeMap(out[0]),
 	}, nil
 }
 
@@ -56,8 +61,13 @@ func (v *Server) ListAttachment(ctx context.Context, request *proto.ListAttachme
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
+	out, err := services.CompleteAttachmentMeta(attachments...)
+	if err != nil {
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+
 	return &proto.ListAttachmentResponse{
-		Attachments: lo.Map(attachments, func(v models.Attachment, _ int) []byte {
+		Attachments: lo.Map(out, func(v models.Attachment, _ int) []byte {
 			return nex.EncodeMap(v)
 		}),
 	}, nil

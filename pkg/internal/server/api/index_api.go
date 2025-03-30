@@ -9,8 +9,8 @@ import (
 	"github.com/spf13/viper"
 	"gorm.io/datatypes"
 
-	"git.solsynth.dev/hypernet/paperclip/pkg/internal/database"
 	"git.solsynth.dev/hypernet/paperclip/pkg/filekit/models"
+	"git.solsynth.dev/hypernet/paperclip/pkg/internal/database"
 	"git.solsynth.dev/hypernet/paperclip/pkg/internal/services"
 	"github.com/gofiber/fiber/v2"
 )
@@ -111,8 +111,13 @@ func listAttachment(c *fiber.Ctx) error {
 		services.CacheAttachment(item)
 	}
 
+	out, err := services.CompleteAttachmentMeta(result...)
+	if err != nil {
+		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+	}
+
 	return c.JSON(fiber.Map{
 		"count": count,
-		"data":  result,
+		"data":  out,
 	})
 }

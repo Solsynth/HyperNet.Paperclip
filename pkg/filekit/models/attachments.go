@@ -5,6 +5,7 @@ import (
 
 	"git.solsynth.dev/hypernet/nexus/pkg/nex/cachekit"
 	"git.solsynth.dev/hypernet/nexus/pkg/nex/cruda"
+	"git.solsynth.dev/hypernet/passport/pkg/authkit/models"
 
 	"git.solsynth.dev/hypernet/paperclip/pkg/internal/gap"
 
@@ -68,7 +69,8 @@ type Attachment struct {
 
 	Boosts []AttachmentBoost `json:"boosts"`
 
-	AccountID uint `json:"account_id"`
+	AccountID uint           `json:"account_id"`
+	Account   models.Account `gorm:"-" json:"account"`
 
 	// Outdated fields, just for backward compatibility
 	FileChunks datatypes.JSONMap `json:"file_chunks" gorm:"-"`

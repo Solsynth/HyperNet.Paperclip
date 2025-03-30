@@ -10,18 +10,42 @@ import (
 
 	"git.solsynth.dev/hypernet/nexus/pkg/nex/cachekit"
 	"git.solsynth.dev/hypernet/nexus/pkg/nex/sec"
+	"git.solsynth.dev/hypernet/passport/pkg/authkit"
 
 	"git.solsynth.dev/hypernet/paperclip/pkg/internal/database"
 	"git.solsynth.dev/hypernet/paperclip/pkg/internal/fs"
 	"git.solsynth.dev/hypernet/paperclip/pkg/internal/gap"
 
 	"git.solsynth.dev/hypernet/paperclip/pkg/filekit/models"
+	amodels "git.solsynth.dev/hypernet/passport/pkg/authkit/models"
 	"github.com/google/uuid"
+	"github.com/samber/lo"
 	"gorm.io/gorm"
 )
 
 func KgAttachmentCache(rid string) string {
 	return cachekit.FKey(cachekit.DAAttachment, rid)
+}
+
+func CompleteAttachmentMeta(in ...models.Attachment) ([]models.Attachment, error) {
+	var usersId []uint
+	for _, item := range in {
+		usersId = append(usersId, item.AccountID)
+	}
+	usersId = lo.Uniq(usersId)
+	users, err := authkit.ListUser(gap.Nx, usersId)
+	if err != nil {
+		return in, fmt.Errorf("failed to list users: %v", err)
+	}
+
+	for idx, item := range in {
+		item.Account = lo.FindOrElse(users, amodels.Account{}, func(idx amodels.Account) bool {
+			return item.AccountID == idx.ID
+		})
+		in[idx] = item
+	}
+
+	return in, nil
 }
 
 func GetAttachmentByID(id uint) (models.Attachment, error) {
@@ -38,7 +62,8 @@ func GetAttachmentByID(id uint) (models.Attachment, error) {
 		CacheAttachment(attachment)
 	}
 
-	return attachment, nil
+	out, err := CompleteAttachmentMeta(attachment)
+	return out[0], err
 }
 
 func GetAttachmentByRID(rid string) (models.Attachment, error) {
@@ -63,7 +88,8 @@ func GetAttachmentByRID(rid string) (models.Attachment, error) {
 		CacheAttachment(attachment)
 	}
 
-	return attachment, nil
+	out, err := CompleteAttachmentMeta(attachment)
+	return out[0], err
 }
 
 func GetAttachmentByHash(hash string) (models.Attachment, error) {
