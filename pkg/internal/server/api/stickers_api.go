@@ -2,12 +2,13 @@ package api
 
 import (
 	"fmt"
-	"github.com/samber/lo"
 	"strings"
 
+	"github.com/samber/lo"
+
 	"git.solsynth.dev/hypernet/nexus/pkg/nex/sec"
-	"git.solsynth.dev/hypernet/paperclip/pkg/internal/database"
 	"git.solsynth.dev/hypernet/paperclip/pkg/filekit/models"
+	"git.solsynth.dev/hypernet/paperclip/pkg/internal/database"
 	"git.solsynth.dev/hypernet/paperclip/pkg/internal/server/exts"
 	"git.solsynth.dev/hypernet/paperclip/pkg/internal/services"
 	"github.com/gofiber/fiber/v2"
@@ -42,9 +43,9 @@ func openStickerByAlias(c *fiber.Ctx) error {
 
 	var url, mimetype string
 	if len(region) > 0 {
-		url, mimetype, err = services.OpenAttachmentByRID(sticker.Attachment.Rid, region)
+		url, mimetype, err = services.OpenAttachmentByRID(sticker.Attachment.Rid, true, region)
 	} else {
-		url, mimetype, err = services.OpenAttachmentByRID(sticker.Attachment.Rid)
+		url, mimetype, err = services.OpenAttachmentByRID(sticker.Attachment.Rid, true)
 	}
 
 	if err != nil {

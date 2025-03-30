@@ -7,15 +7,17 @@ import (
 	"math/rand/v2"
 	nurl "net/url"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"git.solsynth.dev/hypernet/nexus/pkg/nex/cachekit"
+	"git.solsynth.dev/hypernet/paperclip/pkg/filekit/models"
 	"git.solsynth.dev/hypernet/paperclip/pkg/internal/database"
 	"git.solsynth.dev/hypernet/paperclip/pkg/internal/gap"
-	"git.solsynth.dev/hypernet/paperclip/pkg/filekit/models"
 	jsoniter "github.com/json-iterator/go"
 	"github.com/minio/minio-go/v7"
 	"github.com/samber/lo"
+	"github.com/spf13/viper"
 )
 
 type openAttachmentResult struct {
@@ -27,7 +29,7 @@ func KgAttachmentOpenCache(rid string) string {
 	return fmt.Sprintf("attachment-open#%s", rid)
 }
 
-func OpenAttachmentByRID(rid string, region ...string) (url string, mimetype string, err error) {
+func OpenAttachmentByRID(rid string, preview bool, region ...string) (url string, mimetype string, err error) {
 	var result *openAttachmentResult
 	if val, err := cachekit.Get[openAttachmentResult](
 		gap.Ca,
@@ -137,6 +139,16 @@ func OpenAttachmentByRID(rid string, region ...string) (url string, mimetype str
 				destConfigured.Bucket,
 				destConfigured.Endpoint,
 				nurl.QueryEscape(filepath.Join(destConfigured.Path, result.Attachment.Uuid)),
+			)
+		}
+		if len(destConfigured.ImageProxyURL) > 0 && preview {
+			size := viper.GetInt("imageproxy.size")
+			url = fmt.Sprintf(
+				"%s/%dx%d,fit/%s",
+				destConfigured.ImageProxyURL,
+				size,
+				size,
+				strings.Replace(url, destConfigured.AccessBaseURL, "", 1),
 			)
 		}
 		return

@@ -2,8 +2,9 @@ package api
 
 import (
 	"fmt"
-	"github.com/spf13/viper"
 	"strings"
+
+	"github.com/spf13/viper"
 
 	"git.solsynth.dev/hypernet/nexus/pkg/nex/sec"
 	"git.solsynth.dev/hypernet/paperclip/pkg/internal/database"
@@ -40,9 +41,9 @@ func openAttachment(c *fiber.Ctx) error {
 	var err error
 	var url, mimetype string
 	if len(region) > 0 {
-		url, mimetype, err = services.OpenAttachmentByRID(id, region)
+		url, mimetype, err = services.OpenAttachmentByRID(id, c.QueryBool("preview", true), region)
 	} else {
-		url, mimetype, err = services.OpenAttachmentByRID(id)
+		url, mimetype, err = services.OpenAttachmentByRID(id, c.QueryBool("preview", true))
 	}
 
 	if err != nil {

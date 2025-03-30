@@ -35,6 +35,7 @@ type S3Destination struct {
 	SecretID      string `json:"secret_id"`
 	SecretKey     string `json:"secret_key"`
 	AccessBaseURL string `json:"access_baseurl"`
+	ImageProxyURL string `json:"image_proxy_baseurl"`
 	EnableSSL     bool   `json:"enable_ssl"`
 	EnableSigned  bool   `json:"enable_signed"`
 	BucketLookup  int    `json:"bucket_lookup"`
