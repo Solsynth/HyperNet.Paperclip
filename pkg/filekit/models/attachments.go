@@ -61,8 +61,9 @@ type Attachment struct {
 	Compressed   *Attachment `json:"compressed"`
 	CompressedID *uint       `json:"compressed_id"`
 
-	Ref   *Attachment `json:"ref"`
-	RefID *uint       `json:"ref_id"`
+	Ref    *Attachment `json:"ref"`
+	RefID  *uint       `json:"ref_id"`
+	RefURL *string     `json:"ref_url"` // External URL for the attachment
 
 	Pool   *AttachmentPool `json:"pool"`
 	PoolID *uint           `json:"pool_id"`
@@ -71,15 +72,13 @@ type Attachment struct {
 
 	AccountID uint           `json:"account_id"`
 	Account   models.Account `gorm:"-" json:"account"`
-
-	// Outdated fields, just for backward compatibility
-	FileChunks datatypes.JSONMap `json:"file_chunks" gorm:"-"`
-	IsUploaded bool              `json:"is_uploaded" gorm:"-"`
-	IsMature   bool              `json:"is_mature" gorm:"-"`
 }
 
 func (v *Attachment) AfterUpdate(tx *gorm.DB) error {
-	cachekit.FKey(cachekit.DAAttachment, v.Rid)
+	_ = cachekit.Delete(
+		gap.Ca,
+		cachekit.FKey(cachekit.DAAttachment, v.Rid),
+	)
 
 	return nil
 }
@@ -114,7 +113,7 @@ type AttachmentFragment struct {
 }
 
 func (v *AttachmentFragment) AfterUpdate(tx *gorm.DB) error {
-	cachekit.Delete(
+	_ = cachekit.Delete(
 		gap.Ca,
 		cachekit.FKey("attachment-fragment", v.Rid),
 	)
@@ -122,7 +121,7 @@ func (v *AttachmentFragment) AfterUpdate(tx *gorm.DB) error {
 	return nil
 }
 
-func (v AttachmentFragment) ToAttachment() Attachment {
+func (v *AttachmentFragment) ToAttachment() Attachment {
 	return Attachment{
 		Rid:         v.Rid,
 		Uuid:        v.Uuid,

@@ -16,9 +16,9 @@ import (
 	"github.com/barasher/go-exiftool"
 	"github.com/samber/lo"
 
+	"git.solsynth.dev/hypernet/paperclip/pkg/filekit/models"
 	"git.solsynth.dev/hypernet/paperclip/pkg/internal/database"
 	"git.solsynth.dev/hypernet/paperclip/pkg/internal/fs"
-	"git.solsynth.dev/hypernet/paperclip/pkg/filekit/models"
 	jsoniter "github.com/json-iterator/go"
 	"github.com/k0kubun/go-ansi"
 	"github.com/kettek/apng"
