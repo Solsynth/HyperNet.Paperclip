@@ -2,10 +2,11 @@ package api
 
 import (
 	"fmt"
+	"git.solsynth.dev/hypernet/paperclip/pkg/internal/server/exts"
 
 	"git.solsynth.dev/hypernet/nexus/pkg/nex/sec"
-	"git.solsynth.dev/hypernet/paperclip/pkg/internal/database"
 	"git.solsynth.dev/hypernet/paperclip/pkg/filekit/models"
+	"git.solsynth.dev/hypernet/paperclip/pkg/internal/database"
 	"git.solsynth.dev/hypernet/paperclip/pkg/internal/services"
 	"github.com/gofiber/fiber/v2"
 	jsoniter "github.com/json-iterator/go"
@@ -80,4 +81,51 @@ func createAttachmentDirectly(c *fiber.Ctx) error {
 	}
 
 	return c.JSON(metadata)
+}
+
+func createAttachmentWithURL(c *fiber.Ctx) error {
+	user := c.Locals("nex_user").(*sec.UserInfo)
+
+	poolAlias := c.FormValue("pool")
+	aliasingMap := viper.GetStringMapString("pools.aliases")
+	if val, ok := aliasingMap[poolAlias]; ok {
+		poolAlias = val
+	}
+
+	var data struct {
+		URL         string         `json:"url"`
+		Metadata    map[string]any `json:"metadata"`
+		Mimetype    string         `json:"mimetype"`
+		Name        string         `json:"filename"`
+		Alternative string         `json:"alt"`
+	}
+	if err := exts.BindAndValidate(c, &data); err != nil {
+		return err
+	}
+
+	if !user.HasPermNode("CreateReferencedAttachments", true) {
+		return fiber.NewError(fiber.StatusForbidden, "you are not permitted to create attachments with URL")
+	}
+
+	pool, err := services.GetAttachmentPoolByAlias(poolAlias)
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, fmt.Sprintf("unable to get attachment pool info: %v", err))
+	}
+
+	attachment := models.Attachment{
+		Name:        data.Name,
+		Alternative: data.Alternative,
+		MimeType:    c.FormValue("mimetype"),
+		Usermeta:    data.Metadata,
+		IsAnalyzed:  true,
+		Destination: models.AttachmentDstExternal,
+		Pool:        &pool,
+		PoolID:      &pool.ID,
+	}
+
+	if attachment, err = services.NewRefURLAttachment(database.C, user, attachment); err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, err.Error())
+	}
+
+	return c.JSON(attachment)
 }

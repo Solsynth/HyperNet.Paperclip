@@ -6,8 +6,8 @@ import (
 	"os"
 	"path/filepath"
 
-	pkg "git.solsynth.dev/hypernet/paperclip/pkg/internal"
 	"git.solsynth.dev/hypernet/paperclip/pkg/filekit/models"
+	pkg "git.solsynth.dev/hypernet/paperclip/pkg/internal"
 	jsoniter "github.com/json-iterator/go"
 	"github.com/minio/minio-go/v7"
 	"github.com/spf13/viper"

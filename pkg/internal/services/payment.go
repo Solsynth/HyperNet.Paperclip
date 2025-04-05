@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"time"
 
-	"git.solsynth.dev/hypernet/paperclip/pkg/internal/database"
 	"git.solsynth.dev/hypernet/paperclip/pkg/filekit/models"
+	"git.solsynth.dev/hypernet/paperclip/pkg/internal/database"
 
 	"git.solsynth.dev/hypernet/paperclip/pkg/internal/gap"
 	wproto "git.solsynth.dev/hypernet/wallet/pkg/proto"

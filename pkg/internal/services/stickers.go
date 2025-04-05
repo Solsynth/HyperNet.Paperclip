@@ -6,8 +6,8 @@ import (
 
 	"gorm.io/gorm"
 
-	"git.solsynth.dev/hypernet/paperclip/pkg/internal/database"
 	"git.solsynth.dev/hypernet/paperclip/pkg/filekit/models"
+	"git.solsynth.dev/hypernet/paperclip/pkg/internal/database"
 	"github.com/spf13/viper"
 )
 

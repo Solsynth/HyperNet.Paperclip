@@ -14,7 +14,8 @@ import (
 )
 
 const (
-	AttachmentDstTemporary = 0 // The destination 0 is a reserved config for pre-upload processing
+	AttachmentDstExternal  = -1 // The destination marked the file did not store inside our service
+	AttachmentDstTemporary = 0  // Destination 0 is a reserved config for pre-upload processing
 )
 
 const (

@@ -66,6 +66,12 @@ func OpenAttachmentByRID(rid string, preferredSize int, region ...string) (url s
 		mimetype = result.Attachment.MimeType
 	}
 
+	if result.Attachment.RefURL != nil {
+		url = *result.Attachment.RefURL
+		filesize = 0
+		return
+	}
+
 	filesize = result.Attachment.Size
 
 	var dest models.BaseDestination

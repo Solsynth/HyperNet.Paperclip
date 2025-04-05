@@ -12,9 +12,9 @@ import (
 
 	"git.solsynth.dev/hypernet/nexus/pkg/nex/cachekit"
 	"git.solsynth.dev/hypernet/nexus/pkg/nex/sec"
+	"git.solsynth.dev/hypernet/paperclip/pkg/filekit/models"
 	"git.solsynth.dev/hypernet/paperclip/pkg/internal/database"
 	"git.solsynth.dev/hypernet/paperclip/pkg/internal/gap"
-	"git.solsynth.dev/hypernet/paperclip/pkg/filekit/models"
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
 	jsoniter "github.com/json-iterator/go"

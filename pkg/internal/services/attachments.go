@@ -158,6 +158,25 @@ func NewAttachmentMetadata(tx *gorm.DB, user *sec.UserInfo, file *multipart.File
 	return attachment, nil
 }
 
+func NewRefURLAttachment(tx *gorm.DB, user *sec.UserInfo, attachment models.Attachment) (models.Attachment, error) {
+	if attachment.RefURL == nil {
+		return attachment, fmt.Errorf("attachment doesn't have a ref url")
+	}
+
+	attachment.Uuid = uuid.NewString()
+	attachment.Rid = RandString(16)
+	attachment.Size = 0
+	attachment.Destination = models.AttachmentDstExternal
+	attachment.Type = models.AttachmentTypeNormal
+	attachment.AccountID = user.ID
+
+	if err := tx.Save(&attachment).Error; err != nil {
+		return attachment, fmt.Errorf("failed to save attachment record: %v", err)
+	}
+
+	return attachment, nil
+}
+
 func TryLinkAttachment(tx *gorm.DB, og models.Attachment, hash string) (bool, error) {
 	prev, err := GetAttachmentByHash(hash)
 	if err != nil {

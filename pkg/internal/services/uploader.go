@@ -8,9 +8,9 @@ import (
 	"os"
 	"path/filepath"
 
+	"git.solsynth.dev/hypernet/paperclip/pkg/filekit/models"
 	"git.solsynth.dev/hypernet/paperclip/pkg/internal/database"
 	"git.solsynth.dev/hypernet/paperclip/pkg/internal/fs"
-	"git.solsynth.dev/hypernet/paperclip/pkg/filekit/models"
 	"github.com/gofiber/fiber/v2"
 	jsoniter "github.com/json-iterator/go"
 	"github.com/minio/minio-go/v7"

@@ -1,8 +1,8 @@
 package services
 
 import (
-	"git.solsynth.dev/hypernet/paperclip/pkg/internal/database"
 	"git.solsynth.dev/hypernet/paperclip/pkg/filekit/models"
+	"git.solsynth.dev/hypernet/paperclip/pkg/internal/database"
 )
 
 func ListAttachmentPool() ([]models.AttachmentPool, error) {

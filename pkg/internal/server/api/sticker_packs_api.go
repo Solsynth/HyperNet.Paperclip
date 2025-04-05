@@ -2,9 +2,9 @@ package api
 
 import (
 	"git.solsynth.dev/hypernet/nexus/pkg/nex/sec"
+	"git.solsynth.dev/hypernet/paperclip/pkg/filekit/models"
 	"git.solsynth.dev/hypernet/paperclip/pkg/internal/database"
 	"git.solsynth.dev/hypernet/paperclip/pkg/internal/gap"
-	"git.solsynth.dev/hypernet/paperclip/pkg/filekit/models"
 	"git.solsynth.dev/hypernet/paperclip/pkg/internal/server/exts"
 	"git.solsynth.dev/hypernet/paperclip/pkg/internal/services"
 	"git.solsynth.dev/hypernet/passport/pkg/authkit"
