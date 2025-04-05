@@ -39,6 +39,7 @@ func MapAPIs(app *fiber.App, baseURL string) {
 			attachments.Post("/", sec.ValidatorMiddleware, createAttachmentDirectly)
 			attachments.Post("/referenced", sec.ValidatorMiddleware, createAttachmentWithURL)
 			attachments.Put("/:id", sec.ValidatorMiddleware, updateAttachmentMeta)
+			attachments.Put("/:id/rating", sec.ValidatorMiddleware, updateAttachmentRating)
 			attachments.Delete("/:id", sec.ValidatorMiddleware, deleteAttachment)
 		}
 

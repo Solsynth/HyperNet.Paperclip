@@ -154,6 +154,38 @@ func updateAttachmentMeta(c *fiber.Ctx) error {
 	}
 }
 
+func updateAttachmentRating(c *fiber.Ctx) error {
+	id, _ := c.ParamsInt("id", 0)
+	user := c.Locals("nex_user").(*sec.UserInfo)
+
+	var data struct {
+		ContentRating int `json:"content_rating" validate:"required,min=3,max=21"`
+		QualityRating int `json:"quality_rating" validate:"min=0,max=5"`
+	}
+
+	if err := exts.BindAndValidate(c, &data); err != nil {
+		return err
+	}
+
+	attachment, err := services.GetAttachmentByID(uint(id))
+	if err != nil {
+		return fiber.NewError(fiber.StatusNotFound, err.Error())
+	} else if attachment.AccountID != user.ID {
+		if err = sec.EnsureGrantedPerm(c, "OverrideAttachmentRating", true); err != nil {
+			return err
+		}
+	}
+
+	attachment.ContentRating = data.ContentRating
+	attachment.QualityRating = data.QualityRating
+
+	if attachment, err = services.UpdateAttachment(attachment); err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, err.Error())
+	} else {
+		return c.JSON(attachment)
+	}
+}
+
 func deleteAttachment(c *fiber.Ctx) error {
 	id, _ := c.ParamsInt("id", 0)
 	user := c.Locals("nex_user").(*sec.UserInfo)
